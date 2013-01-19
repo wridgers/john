@@ -1,24 +1,28 @@
 #include "vector3.h"
 
-Vector3::Vector3()
+Vector3::Vector3() :
+    x(0.0), y(0.0), z(0.0)
 {
-	x = 0.0;
-	y = 0.0;
-	z = 0.0;
+
 }
 
-Vector3::Vector3(int a, int b, int c)
+Vector3::Vector3(int a, int b, int c) :
+	x((double)a), y((double)b), z((double)c) 
 {
-	x = (double)a;
-	y = (double)b;
-	z = (double)c;
+
 }
 
-Vector3::Vector3(double a, double b, double c)
+Vector3::Vector3(double a, double b, double c) :
+	x(a), y(b), z(c) 
 {
-	x = a;
-	y = b;
-	z = c;
+
+}
+
+Vector3::Vector3(Vector3 from, Vector3 to)
+{
+    x = to.x - from.x;
+    y = to.y - from.y;
+    z = to.z - from.z;
 }
 
 Vector3::~Vector3()
@@ -26,78 +30,178 @@ Vector3::~Vector3()
 
 }
 
-const Vector3 operator+ (const Vector3 &lhs, const Vector3 &rhs)
+///////////////////////////////////////////////////////////////////////////
+
+Vector3& Vector3::operator= (const Vector3 &rhs)
 {
-	return Vector3(
-		lhs.x + rhs.x,
-		lhs.y + rhs.y,
-		lhs.z + rhs.z
-	);
+    if (this == &rhs)
+        return *this;
+
+    Vector3::x = rhs.x;
+    Vector3::y = rhs.y;
+    Vector3::z = rhs.z;
+
+    return *this;
 }
 
-const Vector3 operator- (const Vector3 &lhs, const Vector3 &rhs)
+Vector3 Vector3::operator+ (const Vector3 &rhs)
 {
-	return Vector3(
-		lhs.x - rhs.x,
-		lhs.y - rhs.y,
-		lhs.z - rhs.z
-	);
+    return Vector3(
+        Vector3::x + rhs.x,
+        Vector3::y + rhs.y,
+        Vector3::z + rhs.z
+    );
 }
 
-const Vector3 operator* (const Vector3 &lhs, double rhs)
+Vector3 Vector3::operator+ (const double &rhs)
 {
-	return Vector3(
-		lhs.x * rhs,
-		lhs.y * rhs,
-		lhs.z * rhs
-	);
+    return Vector3(
+        Vector3::x + rhs,
+        Vector3::y + rhs,
+        Vector3::z + rhs
+    );
 }
 
-const Vector3 operator/ (const Vector3 &lhs, double rhs)
+Vector3 Vector3::operator+ ()
 {
-	return Vector3(
-		lhs.x / rhs,
-		lhs.y / rhs,
-		lhs.z / rhs
-	);
+    return Vector3(
+        Vector3::x,
+        Vector3::y,
+        Vector3::z
+    );
 }
 
-ostream& operator<< (ostream &os, const Vector3 &rhs)
+Vector3 Vector3::operator- (const Vector3 &rhs)
 {
-	os << '(' << rhs.x << ',' << rhs.y << ',' << rhs.z << ')';
-	return os;
+    return Vector3(
+        Vector3::x - rhs.x,
+        Vector3::y - rhs.y,
+        Vector3::z - rhs.z
+    );
 }
+
+Vector3 Vector3::operator- (const double &rhs)
+{
+    return Vector3(
+        Vector3::x - rhs,
+        Vector3::y - rhs,
+        Vector3::z - rhs
+    );
+}
+
+Vector3 Vector3::operator- ()
+{
+    return Vector3(
+        - Vector3::x,
+        - Vector3::y,
+        - Vector3::z
+    );
+}
+
+Vector3 Vector3::operator* (const double &rhs)
+{
+    return Vector3(
+        Vector3::x * rhs,
+        Vector3::y * rhs,
+        Vector3::z * rhs
+    );
+}
+
+Vector3 Vector3::operator/ (const double &rhs)
+{
+    return Vector3(
+        Vector3::x / rhs,
+        Vector3::y / rhs,
+        Vector3::z / rhs
+    );
+}
+
+Vector3& Vector3::operator+= (const Vector3 &rhs)
+{
+    Vector3::x += rhs.x;
+    Vector3::y += rhs.y;
+    Vector3::z += rhs.z;
+
+    return *this;
+}
+
+Vector3& Vector3::operator+= (const double &rhs)
+{
+    Vector3::x += rhs;
+    Vector3::y += rhs;
+    Vector3::z += rhs;
+
+    return *this;
+}
+
+Vector3& Vector3::operator-= (const Vector3 &rhs)
+{
+    Vector3::x -= rhs.x;
+    Vector3::y -= rhs.y;
+    Vector3::z -= rhs.z;
+
+    return *this;
+}
+
+Vector3& Vector3::operator-= (const double &rhs)
+{
+    Vector3::x -= rhs;
+    Vector3::y -= rhs;
+    Vector3::z -= rhs;
+
+    return *this;
+}
+
+Vector3& Vector3::operator*= (const double &rhs)
+{
+    Vector3::x *= rhs;
+    Vector3::y *= rhs;
+    Vector3::z *= rhs;
+
+    return *this;
+}
+
+Vector3& Vector3::operator/= (const double &rhs)
+{
+    Vector3::x /= rhs;
+    Vector3::y /= rhs;
+    Vector3::z /= rhs;
+
+    return *this;
+}
+
+///////////////////////////////////////////////////////////////////////////
 
 double Vector3::dot(const Vector3 &rhs)
 {
-	return x*rhs.x + y*rhs.y + z*rhs.z;
+	return Vector3::x*rhs.x + Vector3::y*rhs.y + Vector3::z*rhs.z;
 }
 
 Vector3 Vector3::cross(const Vector3 &rhs)
 {
 	return Vector3(
-		y*rhs.z - z*rhs.y,
-		-(x*rhs.z - z*rhs.x),
-		x*rhs.y - y*rhs.x
+		Vector3::y*rhs.z - Vector3::z*rhs.y,
+		-(Vector3::x*rhs.z - Vector3::z*rhs.x),
+		Vector3::x*rhs.y - Vector3::y*rhs.x
 	);
 }
 
 double Vector3::magnitude()
 {
-	// SSE? Carmack reverse
-	return sqrt(x*x + y*y + z*z);
+    // TODO: optimise this
+	return sqrt(Vector3::x*Vector3::x + Vector3::y*Vector3::y + Vector3::z*Vector3::z);
 }
 
 double Vector3::magnitudeSquare()
 {
-	return x*x + y*y + z*z;
+	return (Vector3::x*Vector3::x + Vector3::y*Vector3::y + Vector3::z*Vector3::z);
 }
 
 void Vector3::normalise()
 {
 	double mag = magnitude();
 
-	x /= mag;
-	y /= mag;
-	z /= mag;
+	Vector3::x /= mag;
+	Vector3::y /= mag;
+	Vector3::z /= mag;
 }

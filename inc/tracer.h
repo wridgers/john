@@ -1,11 +1,18 @@
 #ifndef __TRACER_H__
 #define __TRACER_H__
 
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
+#include "camera.h"
 #include "colour.h"
+#include "light.h"
+#include "material.h"
+#include "ray.h"
+#include "sphere.h"
 #include "vector3.h"
 
 using namespace std;
@@ -13,35 +20,47 @@ using namespace std;
 class Tracer
 {
 public:
-	Tracer();
-	~Tracer();
+    Tracer();
+    ~Tracer();
 
-	// set some options
-	void setRenderResolution(int width, int height);
+    // render settings 
+    void setRenderResolution(int width, int height);
 
-	// prepare
-	bool init();
+    // lighting settings
+    void useAmbientLighting(bool enabled);
+    void setAmbientLightingColour(Colour colour);
+    void setAmbientLightingIntensity(double intensity);
 
-	// scene loading
-	bool loadExampleScene();
-	bool loadScene();
+    // prepare
+    bool init();
 
-	// trace
-	void trace();
+    // scene loading
+    // TODO: add a scene handler
+    bool loadExampleScene();
+    bool loadScene();
 
-	// save screen
-	void writeScreenToBmp(string filename);
+    // trace
+    void trace();
+
+    // save buffer
+    void writeScreenToBmp(string filename);
 
 private:
-	int			renderWidth, renderHeight;
+    // render settings
+    int			        renderWidth, renderHeight;
 
-	int			screenSize;
-	Colour*		screen;
+    // lighting settings
+    bool                ambientLightingEnabled;
+    Colour              ambientLightingColour;
+    double              ambientLightingIntensity;
 
-	// scene objects
-		// objects
-		// lights
-		// camera
+    int			        screenBufferSize;
+    Colour*             screenBuffer;
+
+    // scene objects
+    Camera*             camera;
+    vector<Sphere*>     spheres;
+    vector<Light*>      lights;
 };
 
 #endif

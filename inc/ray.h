@@ -6,11 +6,13 @@
 class Ray
 {
 public:
-	Ray(Vector3d o, Vector3d d);
+	Ray(Vector3 origin, Vector3 direction);
 	~Ray();
 
+    Vector3 at(double t);
+
 private:
-	Vector3d origin, direction;
+	Vector3 origin, direction;
 };
 
 #endif

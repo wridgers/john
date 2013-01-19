@@ -1,10 +1,12 @@
 #include "john.h"
 
+using namespace std;
+
 int main() 
 {
 	// load tracer, apply some settings
 	Tracer *tracer = new Tracer();
-	tracer->setRenderResolution(640, 480);
+	tracer->setRenderResolution(1280, 720);
 
 	tracer->init();
 	tracer->loadExampleScene();
