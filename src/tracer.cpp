@@ -51,8 +51,9 @@ bool Tracer::init()
 
 bool Tracer::loadExampleScene()
 {
-    // render settings
+    // TODO: load this from .lua file
 
+    // render settings
     // lighting settings
     Tracer::useAmbientLighting(true);
     Tracer::setAmbientLightingColour(Colour(255, 255, 255));
@@ -134,6 +135,7 @@ void Tracer::trace()
         int y = (screenIndex - x) / Tracer::renderWidth;
 
         // find location of pixel, and get a ray projecting through pixel into scene
+        // TODO: better camera system with Camera class, FOV, etc.
         Vector3 pixelLocation((double)(x-(Tracer::renderWidth/2)), (double)((Tracer::renderHeight/2)-y), 0.0f);
 
         // direction of ray
@@ -141,6 +143,7 @@ void Tracer::trace()
         rayDirection.normalise();
 
         // create ray to trace
+        // TODO: this should probably be pixelLocation, rayDirection
         Ray         ray(cameraLocation, rayDirection);
 
         // find closest point of intersection and object
@@ -150,6 +153,9 @@ void Tracer::trace()
         double      bestT = 0.0f;
 
         // for every sphere
+        // TODO: use iterator instead of index.
+        // TODO: put most of this code in Object class
+        // TODO: iterator over Objects, support multiple Object types (Sphere, Plane, etc)
         for (unsigned int sphereIndex = 0; sphereIndex < Tracer::spheres.size(); ++sphereIndex) {
             // now, check if ray intersects the sphere
 
@@ -216,6 +222,7 @@ void Tracer::trace()
             // TODO: multiple lights
 
             // calculate phong attenuation
+            // TODO: make phong n value (0.5) a material property.
             double lightDistance = Vector3(intersection, lightLocation).magnitude();
             double lightAttenuation = lightIntensity / (pow(lightDistance, 0.5) + 0.01);
 
@@ -252,6 +259,7 @@ void Tracer::trace()
                 double specular = pow(cosAlpha, 5);
 
                 // occasionally it's negative, why?
+                // TODO: find out why it's occasionally negative
                 if (specular < 0)
                     specular = 0;
 

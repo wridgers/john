@@ -1,13 +1,10 @@
-# john 
-## A C++ ray tracer
-
+# john - a c++ ray tracer
 john is cross platfrom ray tracer written in C++.
 
-# Compiling
-You will need premake to compile john. Premake will generate build files for
-Visual Studio, GNU makefiles, CodeLite, Code::Blocks, and Xcode 3.
+## Compiling
+You can use premake to create the project files for john.
 
-## On Windows with Visual Studio 2010 (and 2012)
+### On Windows with Visual Studio 2010 (and 2012)
 Use premake4 to create the project solution.
 
     premake4 vs2010
@@ -15,7 +12,7 @@ Use premake4 to create the project solution.
 Open the solution in build/ and compile.
 
 
-## On Linux with gmake
+### On Linux with gmake
 
     premake4 gmake
     cd build

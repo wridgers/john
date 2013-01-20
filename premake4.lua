@@ -1,4 +1,4 @@
--- cfu-0x00 solution.
+-- john solution.
 
 if _ACTION == "clean" then
   os.rmdir("bin")
