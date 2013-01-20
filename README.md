@@ -1,5 +1,8 @@
 # john - a c++ ray tracer
-john is cross platfrom ray tracer written in C++.
+john is cross platform ray tracer written in C++.
+
+## Prerequisites
+None. :)
 
 ## Compiling
 You can use premake to create the project files for john.
@@ -11,8 +14,7 @@ Use premake4 to create the project solution.
 
 Open the solution in build/ and compile.
 
-
-### On Linux with gmake
+### On Linux
 
     premake4 gmake
     cd build
