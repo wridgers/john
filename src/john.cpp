@@ -16,7 +16,8 @@ int main()
 	tracer->loadExampleScene();
 
 	tracer->trace();
-    // TODO: render stats, % complete
+    // TODO: render stats, % complete, log file
+    // TODO: opengl window showing render progress
 
 	tracer->writeScreenToBmp("image.bmp");
 

@@ -36,6 +36,8 @@ public:
 
     // scene loading
     // TODO: add a scene handler
+    void addLight(Light* light);
+    void addObject(Object* object);
     bool loadExampleScene();
     bool loadScene();
 
@@ -59,7 +61,7 @@ private:
 
     // scene objects
     Camera*             camera;
-    vector<Sphere*>     spheres;
+    vector<Object*>     objects;
     vector<Light*>      lights;
 };
 

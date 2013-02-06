@@ -2,29 +2,30 @@
 #define __SPHERE_H__
 
 #include "material.h"
+#include "object.h"
+#include "ray.h"
 #include "vector3.h"
 
-class Sphere
+using namespace std;
+
+class Sphere : public Object
 {
 public:
     Sphere();
     Sphere(Vector3 pos, double rad);
     ~Sphere();
 
-    double      getRadius();
+    // we only need setters here
     void        setRadius(double rad);
-
-    Vector3     getPosition();
     void        setPosition(Vector3 pos);
 
-    Material*   getMaterial();
-    void        setMaterial(Material *mat);
+    // object maths
+    pair<bool, double>  intersectionCheck(Ray& ray);
+    Vector3             surfaceNormal(Vector3& intersection);
 
 private:
     double      radius;
     Vector3     position;
-
-    Material    *material;
 };
 
 #endif

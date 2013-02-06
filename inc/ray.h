@@ -9,8 +9,13 @@ public:
 	Ray(Vector3 origin, Vector3 direction);
 	~Ray();
 
-    Vector3 at(double t);
+    Vector3 getOrigin();
+    void    setOrigin(Vector3 origin);
 
+    Vector3 getDirection();
+    void    setDirection(Vector3 direction);
+
+    Vector3 at(double t);
 private:
 	Vector3 origin, direction;
 };

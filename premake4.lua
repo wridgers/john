@@ -17,7 +17,7 @@ solution "john"
 	configuration { "Debug" }
 		defines { "DEBUG" }
 		flags { "Symbols" }
-		targetdir ( "bin/debug" )
+            targetdir ( "bin/debug" )
  
 	configuration { "Release" }
 		defines { "NDEBUG" }

@@ -49,6 +49,16 @@ bool Tracer::init()
     return true;
 }
 
+void Tracer::addLight(Light* light)
+{
+    Tracer::lights.push_back(light);
+}
+
+void Tracer::addObject(Object* object)
+{
+    Tracer::objects.push_back(object);
+}
+
 bool Tracer::loadExampleScene()
 {
     // TODO: load this from .lua file
@@ -66,7 +76,7 @@ bool Tracer::loadExampleScene()
     light->setColour(Colour(255,255,255));
     
     // add to the scene
-    Tracer::lights.push_back(light);
+    Tracer::addLight(light);
      
     // camera
     Tracer::camera = new Camera();
@@ -85,7 +95,7 @@ bool Tracer::loadExampleScene()
     sphere->setMaterial(red);
 
     // add it to the scene
-    Tracer::spheres.push_back(sphere);
+    Tracer::addObject(sphere);
 
     // another sphere!
     sphere = new Sphere();
@@ -101,7 +111,7 @@ bool Tracer::loadExampleScene()
     sphere->setMaterial(blue);
 
     // add it to the scene
-    Tracer::spheres.push_back(sphere);
+    Tracer::addObject(sphere);
 
     // another sphere!
     sphere = new Sphere();
@@ -112,7 +122,7 @@ bool Tracer::loadExampleScene()
     sphere->setMaterial(red);
 
     // add it to the scene
-    Tracer::spheres.push_back(sphere);
+    Tracer::addObject(sphere);
 
     // action!
     return true;
@@ -143,86 +153,54 @@ void Tracer::trace()
         rayDirection.normalise();
 
         // create ray to trace
-        // TODO: this should probably be pixelLocation, rayDirection
-        Ray         ray(cameraLocation, rayDirection);
+        Ray         pixelRay(pixelLocation, rayDirection);
 
         // find closest point of intersection and object
-        bool        intersectionFound = false;
-        Vector3     intersection;
-        Sphere*     sphere;
-        double      bestT = 0.0f;
+        Object*     object = 0;
+        double      objectDistance = 0.0f;
 
         // for every sphere
         // TODO: use iterator instead of index.
-        // TODO: put most of this code in Object class
-        // TODO: iterator over Objects, support multiple Object types (Sphere, Plane, etc)
-        for (unsigned int sphereIndex = 0; sphereIndex < Tracer::spheres.size(); ++sphereIndex) {
+        for (unsigned int objectIndex = 0; objectIndex < Tracer::objects.size(); ++objectIndex) {
             // now, check if ray intersects the sphere
 
-            // get important sphere values
-            Vector3 spherePosition  = Tracer::spheres[sphereIndex]->getPosition();
-            double  sphereRadius    = Tracer::spheres[sphereIndex]->getRadius();
+            pair<bool, double> intersectionTest = Tracer::objects[objectIndex]->intersectionCheck(pixelRay);
 
-            // make calculation a bit easier
-            Vector3 oMinusC = cameraLocation - spherePosition;
-
-            // find a,b,c for quadratic formula
-            // double a = rayDirection.dot(rayDirection);
-            //          = 1
-            double b = 2*rayDirection.dot(oMinusC);
-            double c = oMinusC.dot(oMinusC) - (sphereRadius*sphereRadius);
-
-            // we check the discriminant to see if there is an intersection
-            double discriminant = (b*b) - 4*c;
-
-            if (discriminant > 0) {
-                // yes! intersection!
-
-                // find the two solutions (we know there are two, because discriminant > 0)
-                double t1 = (- b + sqrt(discriminant)) * 0.5;
-                double t2 = (- b - sqrt(discriminant)) * 0.5;
-
-                // we find the closest (smallest) one
-                double t = t1;
-                if (t2 < t1) t = t2;
-
+            if (intersectionTest.first) {
+                // intersection found
                 // now find out if this is the closest.
-                if ((!intersectionFound || t < bestT) && t > 0.0) {
+                if ((!object || intersectionTest.second < objectDistance) 
+                        && intersectionTest.second > 0.0) {
+
                     // we've found at least one intersection
-                    intersectionFound = true;
-
-                    // the coordinates of intersection
-                    intersection = ray.at(t);
-
-                    // how far away it is
-                    bestT = t;
-
-                    // the object ray intersects with
-                    sphere = Tracer::spheres[sphereIndex];
+                    objectDistance  = intersectionTest.second;
+                    object = Tracer::objects[objectIndex];
                 }
             }
         }
 
         // if we found an intersection
-        if (intersectionFound) {
+        if (object) {
+            // the coordinates of intersection
+            Vector3 intersection = pixelRay.at(objectDistance);
+
             // we calculate the direction of the normal at this intersection
-            Vector3 surfaceNormal(sphere->getPosition(), intersection);
-            surfaceNormal.normalise();
+            Vector3 surfaceNormal = object->surfaceNormal(intersection);
 
             // this will be the eventual pixel colour
             Colour pixelColour;
 
             // get sphere's material
-            Material *material = sphere->getMaterial();
-            Colour sC = material->getColour();
+            Material *objectMaterial = object->getMaterial();
+            Colour objectColour = objectMaterial->getColour();
 
             // ADD AMBIENT LIGHTING
-            pixelColour += sC * (material->getAmbientReflectionCoeff() * Tracer::ambientLightingIntensity);
+            pixelColour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * Tracer::ambientLightingIntensity);
 
             // TODO: multiple lights
 
-            // calculate phong attenuation
-            // TODO: make phong n value (0.5) a material property.
+            // calculate Phong attenuation
+            // TODO: make Phong n value (0.5) a material property.
             double lightDistance = Vector3(intersection, lightLocation).magnitude();
             double lightAttenuation = lightIntensity / (pow(lightDistance, 0.5) + 0.01);
 
@@ -239,7 +217,7 @@ void Tracer::trace()
                 // we 'add' the light from the current light to the screen
 
                 // pixelColour += sC*shadowCheck;
-                pixelColour += sC * (lightAttenuation * material->getDiffuseReflectionCoeff() * shadowCheck);
+                pixelColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseReflectionCoeff() * shadowCheck);
 
                 // normal to camera
                 Vector3 cameraNormal(intersection, cameraLocation);
@@ -264,7 +242,7 @@ void Tracer::trace()
                     specular = 0;
 
                 // add to pixel
-                pixelColour += (255 * lightAttenuation * material->getSpecularReflectionCoeff() * specular);
+                pixelColour += (255 * lightAttenuation * objectMaterial->getSpecularReflectionCoeff() * specular);
             }
 
             // TODO: ADD REFLECTION RAY
