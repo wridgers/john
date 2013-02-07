@@ -13,11 +13,21 @@ Tracer::Tracer()
 
 Tracer::~Tracer()
 {
+    // delete the screen buffer
     if (m_screenBuffer)
         delete [] m_screenBuffer;
 
     // delete the scene correctly
-    // TODO: fix all these deletes
+    delete m_camera;
+    
+    for (unsigned int i = 0; i < m_lights.size(); ++i) 
+        delete m_lights[i];
+    
+    for (unsigned int i = 0; i < m_materials.size(); ++i) 
+        delete m_materials[i];
+    
+    for (unsigned int i = 0; i < m_objects.size(); ++i) 
+        delete m_objects[i];
 }
 
 void Tracer::setRenderResolution(int width, int height)
@@ -52,6 +62,11 @@ bool Tracer::init()
 void Tracer::addLight(Light* light)
 {
     m_lights.push_back(light);
+}
+
+void Tracer::addMaterial(Material* material)
+{
+    m_materials.push_back(material);
 }
 
 void Tracer::addObject(Object* object)
@@ -90,6 +105,7 @@ bool Tracer::loadExampleScene()
     // give it a material
     Material *red = new Material();
     red->setColour(Colour(255,0,0));
+    addMaterial(red);
 
     // apply!
     sphere->setMaterial(red);
@@ -106,6 +122,7 @@ bool Tracer::loadExampleScene()
     Material *blue = new Material();
     blue->setColour(Colour(0,0,255));
     blue->setSpecularReflectionCoeff(0);
+    addMaterial(blue);
 
     // apply!
     sphere->setMaterial(blue);
@@ -126,8 +143,6 @@ bool Tracer::loadExampleScene()
 
     // action!
     return true;
-
-    // TODO: delete scene
 }
 
 void Tracer::trace()

@@ -24,5 +24,10 @@ int main()
 	// clean up
 	delete tracer;
 
+    // check for memory leaks
+#ifdef DEBUG
+    _CrtDumpMemoryLeaks();
+#endif
+
 	return 0;
 }

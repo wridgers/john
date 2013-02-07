@@ -37,6 +37,7 @@ public:
     // scene loading
     // TODO: add a scene handler
     void addLight(Light* light);
+    void addMaterial(Material* material);
     void addObject(Object* object);
     bool loadExampleScene();
     bool loadScene();
@@ -51,7 +52,7 @@ private:
     // render settings
     int			        m_renderWidth, m_renderHeight;
 
-    // lighting settings
+    // ambient lighting settings
     bool                m_ambientLightingEnabled;
     Colour              m_ambientLightingColour;
     double              m_ambientLightingIntensity;
@@ -61,8 +62,9 @@ private:
 
     // scene objects
     Camera*             m_camera;
-    vector<Object*>     m_objects;
     vector<Light*>      m_lights;
+    vector<Material*>   m_materials;
+    vector<Object*>     m_objects;
 };
 
 #endif
