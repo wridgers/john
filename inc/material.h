@@ -23,9 +23,12 @@ public:
     void    setSpecularReflectionCoeff(double coeff);
     double  getSpecularReflectionCoeff();
 
-    // phong-blinn
-    void    setPhongCoeff(double coeff);
-    double  getPhongCoeff();
+    // phong light model
+    void    setPhongAttenuation(double coeff);
+    double  getPhongAttenuation();
+
+    void    setPhongSpecularity(double coeff);
+    double  getPhongSpecularity();
 
 private:
     // material colour
@@ -37,8 +40,9 @@ private:
     double  m_diffuseReflectionCoeff;
     double  m_specularReflectionCoeff;
 
-    // phong blinn
-    double  m_phongCoeff;
+    // phong variables
+    double  m_phongAttenuation;
+    double  m_phongSpecularity;
 
 };
 

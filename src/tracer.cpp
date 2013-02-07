@@ -5,6 +5,9 @@ Tracer::Tracer()
     // some sane defaults
     setRenderResolution(640, 480);
 
+    // background colour
+    setRenderBackgroundColour(Colour(0, 0, 0));
+
     // lighting settings
     useAmbientLighting(true);
     setAmbientLightingColour(Colour(255, 255, 255));
@@ -17,23 +20,31 @@ Tracer::~Tracer()
     if (m_screenBuffer)
         delete [] m_screenBuffer;
 
-    // delete the scene correctly
+    // delete the camera
     delete m_camera;
     
+    // delete the lights
     for (unsigned int i = 0; i < m_lights.size(); ++i) 
         delete m_lights[i];
     
+    // delete the materials
     for (unsigned int i = 0; i < m_materials.size(); ++i) 
         delete m_materials[i];
     
+    // delete the objects
     for (unsigned int i = 0; i < m_objects.size(); ++i) 
         delete m_objects[i];
 }
 
 void Tracer::setRenderResolution(int width, int height)
 {
-    m_renderWidth = width;
-    m_renderHeight = height;
+    m_renderWidth   = width;
+    m_renderHeight  = height;
+}
+
+void Tracer::setRenderBackgroundColour(Colour colour)
+{
+    m_renderBackgroundColour = colour;
 }
 
 void Tracer::useAmbientLighting(bool enabled)
@@ -55,6 +66,10 @@ bool Tracer::init()
 {
     m_screenBufferSize = m_renderWidth * m_renderHeight;
     m_screenBuffer = new Colour[m_screenBufferSize];
+
+    // set default background colour
+    for (int i = 0; i < m_screenBufferSize; ++i)
+        m_screenBuffer[i] = m_renderBackgroundColour;
 
     return true;
 }
@@ -105,6 +120,7 @@ bool Tracer::loadExampleScene()
     // give it a material
     Material *red = new Material();
     red->setColour(Colour(255,0,0));
+    red->setPhongSpecularity(200);
     addMaterial(red);
 
     // apply!
@@ -121,7 +137,8 @@ bool Tracer::loadExampleScene()
     // give it a material
     Material *blue = new Material();
     blue->setColour(Colour(0,0,255));
-    blue->setSpecularReflectionCoeff(0);
+    blue->setSpecularReflectionCoeff(0.1);
+    blue->setPhongSpecularity(8);
     addMaterial(blue);
 
     // apply!
@@ -161,6 +178,7 @@ void Tracer::trace()
 
         // find location of pixel, and get a ray projecting through pixel into scene
         // TODO: better camera system with Camera class, FOV, etc.
+        // TODO: anti aliasing
         Vector3 pixelLocation((double)(x-(m_renderWidth/2)), (double)((m_renderHeight/2)-y), 0.0f);
 
         // direction of ray
@@ -178,11 +196,10 @@ void Tracer::trace()
         // TODO: use iterator instead of index.
         for (unsigned int objectIndex = 0; objectIndex < m_objects.size(); ++objectIndex) {
             // now, check if ray intersects the sphere
-
             pair<bool, double> intersectionTest = m_objects[objectIndex]->intersectionCheck(pixelRay);
 
+            // check for intersection
             if (intersectionTest.first) {
-                // intersection found
                 // now find out if this is the closest.
                 if ((!object || intersectionTest.second < objectDistance) 
                         && intersectionTest.second > 0.0) {
@@ -207,7 +224,7 @@ void Tracer::trace()
 
             // get sphere's material
             Material *objectMaterial = object->getMaterial();
-            Colour objectColour = objectMaterial->getColour();
+            Colour objectColour      = objectMaterial->getColour();
 
             // calculate ambient lighting
             pixelColour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * m_ambientLightingIntensity);
@@ -215,9 +232,8 @@ void Tracer::trace()
             // TODO: multiple lights
 
             // calculate Phong attenuation
-            // TODO: make Phong n value (0.5) a material property.
             double lightDistance = Vector3(intersection, lightLocation).magnitude();
-            double lightAttenuation = lightIntensity / (pow(lightDistance, 0.5) + 0.01);
+            double lightAttenuation = lightIntensity / (pow(lightDistance, objectMaterial->getPhongAttenuation()) + 0.01);
 
             // get direction from intersection to lightLocation
             Vector3 lightNormal(intersection, lightLocation);
@@ -247,10 +263,9 @@ void Tracer::trace()
                 // note, these are unit so the magnitude is 1 ;)
                 double cosAlpha = lightNormalReflection.dot(cameraNormal);
 
-                // TODO: get n value from material ;)
-                double specular = pow(cosAlpha, 5);
+                // calculate phong specular stuff
+                double specular = pow(cosAlpha, objectMaterial->getPhongSpecularity());
 
-                // occasionally it's negative, why?
                 // TODO: find out why it's occasionally negative
                 if (specular < 0)
                     specular = 0;

@@ -6,7 +6,8 @@ int main()
 {
 	// load tracer, apply some settings
 	Tracer *tracer = new Tracer();
-	tracer->setRenderResolution(1280, 720);
+	tracer->setRenderResolution(640, 480);
+    tracer->setRenderBackgroundColour(Colour(255, 255, 255));
 
     // TODO: command line arguments
     // TODO: threading and CPU core detection
@@ -19,13 +20,14 @@ int main()
     // TODO: render stats, % complete, log file
     // TODO: opengl window showing render progress
 
+    // save screen buffer
 	tracer->writeScreenToBmp("image.bmp");
 
 	// clean up
 	delete tracer;
 
-    // check for memory leaks
-#ifdef DEBUG
+    // mscv : check for memory leaks
+#if defined _WIN32 || defined _WIN64
     _CrtDumpMemoryLeaks();
 #endif
 

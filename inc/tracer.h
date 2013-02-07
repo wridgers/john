@@ -26,6 +26,9 @@ public:
     // render settings 
     void setRenderResolution(int width, int height);
 
+    // background colour
+    void setRenderBackgroundColour(Colour colour);
+
     // lighting settings
     void useAmbientLighting(bool enabled);
     void setAmbientLightingColour(Colour colour);
@@ -39,11 +42,13 @@ public:
     void addLight(Light* light);
     void addMaterial(Material* material);
     void addObject(Object* object);
+
     bool loadExampleScene();
     bool loadScene();
 
     // trace
-    void trace();
+    void   trace();
+    Colour traceRay(Ray *ray);
 
     // save buffer
     void writeScreenToBmp(string filename);
@@ -52,11 +57,18 @@ private:
     // render settings
     int			        m_renderWidth, m_renderHeight;
 
+    // background
+    Colour              m_renderBackgroundColour;
+
     // ambient lighting settings
     bool                m_ambientLightingEnabled;
     Colour              m_ambientLightingColour;
     double              m_ambientLightingIntensity;
 
+    // tracing settings
+    int                 m_threads;
+
+    // screen buffer
     int			        m_screenBufferSize;
     Colour*             m_screenBuffer;
 

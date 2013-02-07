@@ -2,9 +2,13 @@
 
 Material::Material()
 {
+    // sane defaults
     m_ambientReflectionCoeff = 0.6;
     m_diffuseReflectionCoeff = 0.3;
     m_specularReflectionCoeff = 0.2;
+
+    m_phongAttenuation = 0.5;
+    m_phongSpecularity = 5;
 }
 
 Material::~Material()
@@ -50,4 +54,24 @@ void Material::setSpecularReflectionCoeff(double coeff)
 double Material::getSpecularReflectionCoeff()
 {
     return m_specularReflectionCoeff;
+}
+
+void Material::setPhongAttenuation(double coeff)
+{
+    m_phongAttenuation = coeff;
+}
+
+double Material::getPhongAttenuation()
+{
+    return m_phongAttenuation;
+}
+
+void Material::setPhongSpecularity(double coeff)
+{
+    m_phongSpecularity = coeff;
+}
+
+double Material::getPhongSpecularity()
+{
+    return m_phongSpecularity;
 }
