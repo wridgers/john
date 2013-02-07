@@ -37,9 +37,9 @@ Vector3& Vector3::operator= (const Vector3 &rhs)
     if (this == &rhs)
         return *this;
 
-    Vector3::x = rhs.x;
-    Vector3::y = rhs.y;
-    Vector3::z = rhs.z;
+    x = rhs.x;
+    y = rhs.y;
+    z = rhs.z;
 
     return *this;
 }
@@ -47,125 +47,125 @@ Vector3& Vector3::operator= (const Vector3 &rhs)
 Vector3 Vector3::operator+ (const Vector3 &rhs)
 {
     return Vector3(
-        Vector3::x + rhs.x,
-        Vector3::y + rhs.y,
-        Vector3::z + rhs.z
+        x + rhs.x,
+        y + rhs.y,
+        z + rhs.z
     );
 }
 
 Vector3 Vector3::operator+ (const double &rhs)
 {
     return Vector3(
-        Vector3::x + rhs,
-        Vector3::y + rhs,
-        Vector3::z + rhs
+        x + rhs,
+        y + rhs,
+        z + rhs
     );
 }
 
 Vector3 Vector3::operator+ ()
 {
     return Vector3(
-        Vector3::x,
-        Vector3::y,
-        Vector3::z
+        x,
+        y,
+        z
     );
 }
 
 Vector3 Vector3::operator- (const Vector3 &rhs)
 {
     return Vector3(
-        Vector3::x - rhs.x,
-        Vector3::y - rhs.y,
-        Vector3::z - rhs.z
+        x - rhs.x,
+        y - rhs.y,
+        z - rhs.z
     );
 }
 
 Vector3 Vector3::operator- (const double &rhs)
 {
     return Vector3(
-        Vector3::x - rhs,
-        Vector3::y - rhs,
-        Vector3::z - rhs
+        x - rhs,
+        y - rhs,
+        z - rhs
     );
 }
 
 Vector3 Vector3::operator- ()
 {
     return Vector3(
-        - Vector3::x,
-        - Vector3::y,
-        - Vector3::z
+        - x,
+        - y,
+        - z
     );
 }
 
 Vector3 Vector3::operator* (const double &rhs)
 {
     return Vector3(
-        Vector3::x * rhs,
-        Vector3::y * rhs,
-        Vector3::z * rhs
+        x * rhs,
+        y * rhs,
+        z * rhs
     );
 }
 
 Vector3 Vector3::operator/ (const double &rhs)
 {
     return Vector3(
-        Vector3::x / rhs,
-        Vector3::y / rhs,
-        Vector3::z / rhs
+        x / rhs,
+        y / rhs,
+        z / rhs
     );
 }
 
 Vector3& Vector3::operator+= (const Vector3 &rhs)
 {
-    Vector3::x += rhs.x;
-    Vector3::y += rhs.y;
-    Vector3::z += rhs.z;
+    x += rhs.x;
+    y += rhs.y;
+    z += rhs.z;
 
     return *this;
 }
 
 Vector3& Vector3::operator+= (const double &rhs)
 {
-    Vector3::x += rhs;
-    Vector3::y += rhs;
-    Vector3::z += rhs;
+    x += rhs;
+    y += rhs;
+    z += rhs;
 
     return *this;
 }
 
 Vector3& Vector3::operator-= (const Vector3 &rhs)
 {
-    Vector3::x -= rhs.x;
-    Vector3::y -= rhs.y;
-    Vector3::z -= rhs.z;
+    x -= rhs.x;
+    y -= rhs.y;
+    z -= rhs.z;
 
     return *this;
 }
 
 Vector3& Vector3::operator-= (const double &rhs)
 {
-    Vector3::x -= rhs;
-    Vector3::y -= rhs;
-    Vector3::z -= rhs;
+    x -= rhs;
+    y -= rhs;
+    z -= rhs;
 
     return *this;
 }
 
 Vector3& Vector3::operator*= (const double &rhs)
 {
-    Vector3::x *= rhs;
-    Vector3::y *= rhs;
-    Vector3::z *= rhs;
+    x *= rhs;
+    y *= rhs;
+    z *= rhs;
 
     return *this;
 }
 
 Vector3& Vector3::operator/= (const double &rhs)
 {
-    Vector3::x /= rhs;
-    Vector3::y /= rhs;
-    Vector3::z /= rhs;
+    x /= rhs;
+    y /= rhs;
+    z /= rhs;
 
     return *this;
 }
@@ -174,34 +174,34 @@ Vector3& Vector3::operator/= (const double &rhs)
 
 double Vector3::dot(const Vector3 &rhs)
 {
-	return Vector3::x*rhs.x + Vector3::y*rhs.y + Vector3::z*rhs.z;
+	return x*rhs.x + y*rhs.y + z*rhs.z;
 }
 
 Vector3 Vector3::cross(const Vector3 &rhs)
 {
 	return Vector3(
-		Vector3::y*rhs.z - Vector3::z*rhs.y,
-		-(Vector3::x*rhs.z - Vector3::z*rhs.x),
-		Vector3::x*rhs.y - Vector3::y*rhs.x
+		y*rhs.z - z*rhs.y,
+        z*rhs.x - x*rhs.z,
+		x*rhs.y - y*rhs.x
 	);
 }
 
 double Vector3::magnitude()
 {
     // TODO: optimise this
-	return sqrt(Vector3::x*Vector3::x + Vector3::y*Vector3::y + Vector3::z*Vector3::z);
+	return sqrt(x*x + y*y + z*z);
 }
 
 double Vector3::magnitudeSquare()
 {
-	return (Vector3::x*Vector3::x + Vector3::y*Vector3::y + Vector3::z*Vector3::z);
+	return (x*x + y*y + z*z);
 }
 
 void Vector3::normalise()
 {
 	double mag = magnitude();
 
-	Vector3::x /= mag;
-	Vector3::y /= mag;
-	Vector3::z /= mag;
+	x /= mag;
+	y /= mag;
+	z /= mag;
 }

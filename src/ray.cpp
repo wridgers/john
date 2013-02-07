@@ -1,10 +1,8 @@
 #include "ray.h"
 
 Ray::Ray(Vector3 origin, Vector3 direction)
+    : m_origin(origin), m_direction(direction)
 {
-    // r = o + t*d
-    Ray::origin = origin;
-    Ray::direction = direction;
 }
 
 Ray::~Ray()
@@ -14,26 +12,25 @@ Ray::~Ray()
 
 Vector3 Ray::getOrigin()
 {
-    return Ray::origin;
+    return m_origin;
 }
 
 void Ray::setOrigin(Vector3 origin)
 {
-    Ray::origin = origin;
+    origin = origin;
 }
 
 Vector3 Ray::getDirection()
 {
-    return Ray::direction;
+    return m_direction;
 }
 
 void Ray::setDirection(Vector3 direction)
 {
-    Ray::direction = direction;
+    direction = direction;
 }
 
 Vector3 Ray::at(double t)
 {
-    Vector3 point = Ray::origin + (Ray::direction * t);
-    return point;
+    return m_origin + (m_direction * t);
 }

@@ -2,12 +2,12 @@
 
 Sphere::Sphere()
 {
-    Sphere::position    = Vector3(0,0,0);
-    Sphere::radius      = 100.0f;
+    this->m_position    = Vector3(0,0,0);
+    this->m_radius      = 100.0f;
 }
 
-Sphere::Sphere(Vector3 pos, double rad)
-    : position(pos), radius(rad)
+Sphere::Sphere(Vector3 position, double radius)
+    : m_position(position), m_radius(radius)
 {
 }
 
@@ -16,26 +16,26 @@ Sphere::~Sphere()
 
 }
 
-void Sphere::setPosition(Vector3 pos)
+void Sphere::setPosition(Vector3 position)
 {
-    Sphere::position = pos;
+    m_position = position;
 }
 
-void Sphere::setRadius(double rad)
+void Sphere::setRadius(double radius)
 {
-    Sphere::radius = rad;
+    m_radius = radius;
 }
 
 pair<bool, double> Sphere::intersectionCheck(Ray& ray)
 {
-    // make calculation a bit easie    // r
-    Vector3 oMinusC = ray.getOrigin() - Sphere::position;
+    // make calculation a bit easier
+    Vector3 oMinusC = ray.getOrigin() - m_position;
 
     // find a,b,c for quadratic formula
     // double a = rayDirection.dot(rayDirection);
     //          = 1
     double b = 2*ray.getDirection().dot(oMinusC);
-    double c = oMinusC.dot(oMinusC) - (Sphere::radius*Sphere::radius);
+    double c = oMinusC.dot(oMinusC) - (m_radius*m_radius);
 
     // we check the discriminant to see if there is an intersection
     double discriminant = (b*b) - 4*c;
@@ -60,7 +60,7 @@ pair<bool, double> Sphere::intersectionCheck(Ray& ray)
 
 Vector3 Sphere::surfaceNormal(Vector3& intersection) 
 {
-    Vector3 normal(Sphere::position, intersection);
+    Vector3 normal(m_position, intersection);
     normal.normalise();
 
     return normal;

@@ -9,15 +9,15 @@ class Camera
 {
 public:
     Camera();
-    Camera(Vector3 loc, Vector3 target);
+    Camera(Vector3 location, Vector3 target);
     ~Camera();
 
 private:
     // position and orientation
-    Vector3d        location, direction;
+    Vector3d        m_location, m_direction;
 
     // FOV settings
-    double          hFOV, vFOV;
+    double          m_hFOV, m_vFOV;
 };
 
 #endif

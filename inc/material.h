@@ -11,7 +11,7 @@ public:
 
     // material colour settings
     Colour  getColour();
-    void    setColour(Colour col);
+    void    setColour(Colour colour);
 
     // lighting coefficients
     void    setAmbientReflectionCoeff(double coeff);
@@ -23,15 +23,22 @@ public:
     void    setSpecularReflectionCoeff(double coeff);
     double  getSpecularReflectionCoeff();
 
+    // phong-blinn
+    void    setPhongCoeff(double coeff);
+    double  getPhongCoeff();
+
 private:
     // material colour
     // TODO: diffuse colour, ambient colour, and specular colour
-    Colour  colour;
+    Colour  m_colour;
 
     // lighting coefficients
-    double  ambientReflectionCoeff;
-    double  diffuseReflectionCoeff;
-    double  specularReflectionCoeff;
+    double  m_ambientReflectionCoeff;
+    double  m_diffuseReflectionCoeff;
+    double  m_specularReflectionCoeff;
+
+    // phong blinn
+    double  m_phongCoeff;
 
 };
 

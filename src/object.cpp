@@ -22,10 +22,10 @@ Vector3 Object::surfaceNormal(Vector3& intersection)
 
 Material* Object::getMaterial()
 {
-    return Object::material;
+    return m_material;
 }
 
-void Object::setMaterial(Material* mat)
+void Object::setMaterial(Material* material)
 {
-    Object::material = mat;
+    m_material = material;
 }

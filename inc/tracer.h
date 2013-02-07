@@ -49,20 +49,20 @@ public:
 
 private:
     // render settings
-    int			        renderWidth, renderHeight;
+    int			        m_renderWidth, m_renderHeight;
 
     // lighting settings
-    bool                ambientLightingEnabled;
-    Colour              ambientLightingColour;
-    double              ambientLightingIntensity;
+    bool                m_ambientLightingEnabled;
+    Colour              m_ambientLightingColour;
+    double              m_ambientLightingIntensity;
 
-    int			        screenBufferSize;
-    Colour*             screenBuffer;
+    int			        m_screenBufferSize;
+    Colour*             m_screenBuffer;
 
     // scene objects
-    Camera*             camera;
-    vector<Object*>     objects;
-    vector<Light*>      lights;
+    Camera*             m_camera;
+    vector<Object*>     m_objects;
+    vector<Light*>      m_lights;
 };
 
 #endif

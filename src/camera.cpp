@@ -2,17 +2,14 @@
 
 Camera::Camera()
 {
-    // use sane defaults
-    Vector3 location(0, 0, -100);
-    Vector3 target;
-
-    Camera::Camera(location, target);
+    m_location = Vector3(0, -100, 0);
+    m_direction = Vector3(m_location, Vector3());
 }
 
 Camera::Camera(Vector3 location, Vector3 target)
 {
-    Camera::location = location;
-    Camera::direction = Vector3(location, target);
+    m_location = location;
+    m_direction = Vector3(location, target);
 }
 
 Camera::~Camera()

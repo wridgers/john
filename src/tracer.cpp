@@ -3,18 +3,18 @@
 Tracer::Tracer()
 {
     // some sane defaults
-    Tracer::setRenderResolution(640, 480);
+    setRenderResolution(640, 480);
 
     // lighting settings
-    Tracer::useAmbientLighting(true);
-    Tracer::setAmbientLightingColour(Colour(255, 255, 255));
-    Tracer::setAmbientLightingIntensity(0.01);
+    useAmbientLighting(true);
+    setAmbientLightingColour(Colour(255, 255, 255));
+    setAmbientLightingIntensity(0.01);
 }
 
 Tracer::~Tracer()
 {
-    if (screenBuffer)
-        delete [] screenBuffer;
+    if (m_screenBuffer)
+        delete [] m_screenBuffer;
 
     // delete the scene correctly
     // TODO: fix all these deletes
@@ -22,41 +22,41 @@ Tracer::~Tracer()
 
 void Tracer::setRenderResolution(int width, int height)
 {
-    Tracer::renderWidth = width;
-    Tracer::renderHeight = height;
+    m_renderWidth = width;
+    m_renderHeight = height;
 }
 
 void Tracer::useAmbientLighting(bool enabled)
 {
-    Tracer::ambientLightingEnabled = enabled;
+    m_ambientLightingEnabled = enabled;
 }
 
 void Tracer::setAmbientLightingColour(Colour colour)
 {
-    Tracer::ambientLightingColour = colour;
+    m_ambientLightingColour = colour;
 }
 
 void Tracer::setAmbientLightingIntensity(double intensity)
 {
-    Tracer::ambientLightingIntensity = intensity;
+    m_ambientLightingIntensity = intensity;
 }
 
 bool Tracer::init()
 {
-    Tracer::screenBufferSize = Tracer::renderWidth * Tracer::renderHeight;
-    Tracer::screenBuffer = new Colour[Tracer::screenBufferSize];
+    m_screenBufferSize = m_renderWidth * m_renderHeight;
+    m_screenBuffer = new Colour[m_screenBufferSize];
 
     return true;
 }
 
 void Tracer::addLight(Light* light)
 {
-    Tracer::lights.push_back(light);
+    m_lights.push_back(light);
 }
 
 void Tracer::addObject(Object* object)
 {
-    Tracer::objects.push_back(object);
+    m_objects.push_back(object);
 }
 
 bool Tracer::loadExampleScene()
@@ -65,9 +65,9 @@ bool Tracer::loadExampleScene()
 
     // render settings
     // lighting settings
-    Tracer::useAmbientLighting(true);
-    Tracer::setAmbientLightingColour(Colour(255, 255, 255));
-    Tracer::setAmbientLightingIntensity(0.05);
+    useAmbientLighting(true);
+    setAmbientLightingColour(Colour(255, 255, 255));
+    setAmbientLightingIntensity(0.05);
 
     // lights
     // create a light
@@ -76,10 +76,10 @@ bool Tracer::loadExampleScene()
     light->setColour(Colour(255,255,255));
     
     // add to the scene
-    Tracer::addLight(light);
+    addLight(light);
      
     // camera
-    Tracer::camera = new Camera();
+    m_camera = new Camera();
 
     // props
     // props need materials
@@ -95,7 +95,7 @@ bool Tracer::loadExampleScene()
     sphere->setMaterial(red);
 
     // add it to the scene
-    Tracer::addObject(sphere);
+    addObject(sphere);
 
     // another sphere!
     sphere = new Sphere();
@@ -111,7 +111,7 @@ bool Tracer::loadExampleScene()
     sphere->setMaterial(blue);
 
     // add it to the scene
-    Tracer::addObject(sphere);
+    addObject(sphere);
 
     // another sphere!
     sphere = new Sphere();
@@ -122,7 +122,7 @@ bool Tracer::loadExampleScene()
     sphere->setMaterial(red);
 
     // add it to the scene
-    Tracer::addObject(sphere);
+    addObject(sphere);
 
     // action!
     return true;
@@ -139,14 +139,14 @@ void Tracer::trace()
     double  lightIntensity = 100.0;
     Vector3 lightLocation(0, 500, 0);
 
-    for (int screenIndex = 0; screenIndex < Tracer::screenBufferSize; ++screenIndex ) {
+    for (int screenIndex = 0; screenIndex < m_screenBufferSize; ++screenIndex ) {
         // find which pixel this screen cell is for        
-        int x = screenIndex % Tracer::renderWidth;
-        int y = (screenIndex - x) / Tracer::renderWidth;
+        int x = screenIndex % m_renderWidth;
+        int y = (screenIndex - x) / m_renderWidth;
 
         // find location of pixel, and get a ray projecting through pixel into scene
         // TODO: better camera system with Camera class, FOV, etc.
-        Vector3 pixelLocation((double)(x-(Tracer::renderWidth/2)), (double)((Tracer::renderHeight/2)-y), 0.0f);
+        Vector3 pixelLocation((double)(x-(m_renderWidth/2)), (double)((m_renderHeight/2)-y), 0.0f);
 
         // direction of ray
         Vector3 rayDirection(cameraLocation, pixelLocation);
@@ -156,15 +156,15 @@ void Tracer::trace()
         Ray         pixelRay(pixelLocation, rayDirection);
 
         // find closest point of intersection and object
-        Object*     object = 0;
+        Object*     object = NULL;
         double      objectDistance = 0.0f;
 
         // for every sphere
         // TODO: use iterator instead of index.
-        for (unsigned int objectIndex = 0; objectIndex < Tracer::objects.size(); ++objectIndex) {
+        for (unsigned int objectIndex = 0; objectIndex < m_objects.size(); ++objectIndex) {
             // now, check if ray intersects the sphere
 
-            pair<bool, double> intersectionTest = Tracer::objects[objectIndex]->intersectionCheck(pixelRay);
+            pair<bool, double> intersectionTest = m_objects[objectIndex]->intersectionCheck(pixelRay);
 
             if (intersectionTest.first) {
                 // intersection found
@@ -174,7 +174,7 @@ void Tracer::trace()
 
                     // we've found at least one intersection
                     objectDistance  = intersectionTest.second;
-                    object = Tracer::objects[objectIndex];
+                    object = m_objects[objectIndex];
                 }
             }
         }
@@ -194,8 +194,8 @@ void Tracer::trace()
             Material *objectMaterial = object->getMaterial();
             Colour objectColour = objectMaterial->getColour();
 
-            // ADD AMBIENT LIGHTING
-            pixelColour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * Tracer::ambientLightingIntensity);
+            // calculate ambient lighting
+            pixelColour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * m_ambientLightingIntensity);
 
             // TODO: multiple lights
 
@@ -211,12 +211,11 @@ void Tracer::trace()
             // if the dot product is negative, it is in shadow
             double shadowCheck = surfaceNormal.dot(lightNormal);
 
-            // ADD DIFFUSE LIGHTING
             if (shadowCheck > 0.0f) {
                 // not in shadow
                 // we 'add' the light from the current light to the screen
 
-                // pixelColour += sC*shadowCheck;
+                // calculate diffuse lighting
                 pixelColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseReflectionCoeff() * shadowCheck);
 
                 // normal to camera
@@ -250,7 +249,7 @@ void Tracer::trace()
             // TODO: ADD REFRACTION RAY
 
             // set it
-            Tracer::screenBuffer[screenIndex] = pixelColour;
+            m_screenBuffer[screenIndex] = pixelColour;
         }
     }
 }
@@ -285,8 +284,8 @@ void Tracer::writeScreenToBmp(string filename)
     struct BitMapInfoHeader	info;
 
     // magic bytes
-    int extraBytes = (4 - (Tracer::renderWidth * 3) % 4) % 4; // each row must be multiple of four
-    int imageBufferSize = (Tracer::renderWidth * 3 + extraBytes) * renderHeight;
+    int extraBytes = (4 - (m_renderWidth * 3) % 4) % 4; // each row must be multiple of four
+    int imageBufferSize = (m_renderWidth * 3 + extraBytes) * m_renderHeight;
 
     header.magic = 0x4d42; // 'BM'
     header.size	= 14 + 40 + imageBufferSize;
@@ -295,8 +294,8 @@ void Tracer::writeScreenToBmp(string filename)
     header.offbits = 14 + 40;
 
     info.size = 40;
-    info.width = Tracer::renderWidth;
-    info.height = Tracer::renderHeight;
+    info.width = m_renderWidth;
+    info.height = m_renderHeight;
     info.planes = 1;
     info.bitCount = 24;
     info.compression = 0;
@@ -311,18 +310,18 @@ void Tracer::writeScreenToBmp(string filename)
     // zero everything (make it black, zero the extra bytes)
     memset(imageBuffer, 0, sizeof(char)*imageBufferSize);
 
-    for (int i = 0; i < screenBufferSize; ++i ) {
-        int x = i % Tracer::renderWidth;
-        int y = (i - x) / Tracer::renderWidth;
+    for (int i = 0; i < m_screenBufferSize; ++i ) {
+        int x = i % m_renderWidth;
+        int y = (i - x) / m_renderWidth;
 
         // use x and y to find offset n
         // this is because the bitmap format expects the last row first
-        int n = (Tracer::renderHeight - 1 - y) * (Tracer::renderWidth * 3 + extraBytes) + (x * 3);
+        int n = (m_renderHeight - 1 - y) * (m_renderWidth * 3 + extraBytes) + (x * 3);
 
         // set blue, green, and red byte
-        imageBuffer[n]		= (char)Tracer::screenBuffer[i].getBlueRGB();
-        imageBuffer[n+1]	= (char)Tracer::screenBuffer[i].getGreenRGB();
-        imageBuffer[n+2]	= (char)Tracer::screenBuffer[i].getRedRGB();
+        imageBuffer[n]		= (char)m_screenBuffer[i].getBlueRGB();
+        imageBuffer[n+1]	= (char)m_screenBuffer[i].getGreenRGB();
+        imageBuffer[n+2]	= (char)m_screenBuffer[i].getRedRGB();
     }
 
     // write to file

@@ -12,7 +12,7 @@ public:
 	~Colour();
 
     // public information
-	double red, green, blue;
+	double m_red, m_green, m_blue;
 
     // operators
 	Colour  operator*  (const double &rhs);

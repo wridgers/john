@@ -17,7 +17,7 @@ public:
 
     Vector3 at(double t);
 private:
-	Vector3 origin, direction;
+	Vector3 m_origin, m_direction;
 };
 
 #endif

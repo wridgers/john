@@ -12,20 +12,20 @@ class Sphere : public Object
 {
 public:
     Sphere();
-    Sphere(Vector3 pos, double rad);
+    Sphere(Vector3 position, double radius);
     ~Sphere();
 
     // we only need setters here
-    void        setRadius(double rad);
-    void        setPosition(Vector3 pos);
+    void setRadius(double radius);
+    void setPosition(Vector3 position);
 
     // object maths
     pair<bool, double>  intersectionCheck(Ray& ray);
     Vector3             surfaceNormal(Vector3& intersection);
 
 private:
-    double      radius;
-    Vector3     position;
+    double      m_radius;
+    Vector3     m_position;
 };
 
 #endif

@@ -19,10 +19,10 @@ public:
     virtual Vector3             surfaceNormal(Vector3& intersection);
 
     Material*   getMaterial();
-    void        setMaterial(Material* mat);
+    void        setMaterial(Material* material);
 
 protected:
-    Material*   material;
+    Material*   m_material;
 
 };
 

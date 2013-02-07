@@ -2,9 +2,9 @@
 
 Material::Material()
 {
-    Material::ambientReflectionCoeff = 0.6;
-    Material::diffuseReflectionCoeff = 0.3;
-    Material::specularReflectionCoeff = 0.2;
+    m_ambientReflectionCoeff = 0.6;
+    m_diffuseReflectionCoeff = 0.3;
+    m_specularReflectionCoeff = 0.2;
 }
 
 Material::~Material()
@@ -14,40 +14,40 @@ Material::~Material()
 
 Colour Material::getColour()
 {
-    return Material::colour;
+    return m_colour;
 }
 
-void Material::setColour(Colour col)
+void Material::setColour(Colour colour)
 {
-    Material::colour = col;
+    m_colour = colour;
 }
 
 void Material::setAmbientReflectionCoeff(double coeff)
 {
-    Material::ambientReflectionCoeff = coeff;
+    m_ambientReflectionCoeff = coeff;
 }
 
 double Material::getAmbientReflectionCoeff()
 {
-    return Material::ambientReflectionCoeff;
+    return m_ambientReflectionCoeff;
 }
 
 void Material::setDiffuseReflectionCoeff(double coeff)
 {
-    Material::diffuseReflectionCoeff = coeff;
+    m_diffuseReflectionCoeff = coeff;
 }
 
 double Material::getDiffuseReflectionCoeff()
 {
-    return Material::diffuseReflectionCoeff;
+    return m_diffuseReflectionCoeff;
 }
 
 void Material::setSpecularReflectionCoeff(double coeff)
 {
-    Material::specularReflectionCoeff = coeff;
+    m_specularReflectionCoeff = coeff;
 }
 
 double Material::getSpecularReflectionCoeff()
 {
-    return Material::specularReflectionCoeff;
+    return m_specularReflectionCoeff;
 }

@@ -2,14 +2,14 @@
 
 Light::Light()
 {
-    Light::position = Vector3(0, 0, 0);
-    Light::colour = Colour(255, 255, 255);
+    m_position = Vector3(0, 0, 0);
+    m_colour = Colour(255, 255, 255);
 }
 
-Light::Light(Vector3 pos)
-    : position(pos)
+Light::Light(Vector3 position)
+    : m_position(position)
 {
-    Light::colour = Colour(255, 255, 255);
+    m_colour = Colour(255, 255, 255);
 }
 
 Light::~Light()
@@ -19,20 +19,20 @@ Light::~Light()
 
 Vector3 Light::getPosition()
 {
-    return Light::position;
+    return m_position;
 }
 
-void Light::setPosition(Vector3 pos)
+void Light::setPosition(Vector3 position)
 {
-    Light::position = pos;
+    m_position = position;
 }
 
 Colour Light::getColour()
 {
-    return Light::colour;
+    return m_colour;
 }
 
-void Light::setColour(Colour col)
+void Light::setColour(Colour colour)
 {
-    Light::colour = col;
+    m_colour = colour;
 }
