@@ -1,12 +1,8 @@
 -- john solution.
 
-if _ACTION == "clean" then
-  os.rmdir("bin")
-  os.rmdir("build")
-end
-
 solution "john"
-	configurations { "Debug", "Release" }
+    -- Release first so it is the default option
+	configurations { "Release", "Debug" }
 	platforms { "x32", "x64" }
    
 	buildflags = { "fatal-warnings" }
@@ -29,3 +25,9 @@ solution "john"
 		language "C++"
 		files { "src/**", "inc/**" }
 	    includedirs { "./inc" }
+
+-- A nice cleanup
+if _ACTION == "clean" then
+  os.rmdir("bin")
+  os.rmdir("build")
+end
