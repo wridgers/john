@@ -24,16 +24,21 @@ Tracer::~Tracer()
     delete m_camera;
     
     // delete the lights
-    for (unsigned int i = 0; i < m_lights.size(); ++i) 
-        delete m_lights[i];
+    for (auto light : m_lights)
+        delete light;
     
-    // delete the materials
-    for (unsigned int i = 0; i < m_materials.size(); ++i) 
-        delete m_materials[i];
+    // delete materials
+    for (auto material : m_materials)
+        delete material;
     
-    // delete the objects
-    for (unsigned int i = 0; i < m_objects.size(); ++i) 
-        delete m_objects[i];
+    // delete objects
+    for (auto object : m_objects)
+        delete object;
+}
+
+void Tracer::setNumberOfThreads(int threads)
+{
+    m_threads = threads;
 }
 
 void Tracer::setRenderResolution(int width, int height)
@@ -67,7 +72,6 @@ bool Tracer::init()
     m_screenBufferSize = m_renderWidth * m_renderHeight;
     m_screenBuffer = new Colour[m_screenBufferSize];
 
-    // set default background colour
     for (int i = 0; i < m_screenBufferSize; ++i)
         m_screenBuffer[i] = m_renderBackgroundColour;
 
@@ -194,9 +198,10 @@ void Tracer::trace()
 
         // for every sphere
         // TODO: use iterator instead of index.
-        for (unsigned int objectIndex = 0; objectIndex < m_objects.size(); ++objectIndex) {
+        for (auto obj : m_objects) {
+        //for (unsigned int objectIndex = 0; objectIndex < m_objects.size(); ++objectIndex) {
             // now, check if ray intersects the sphere
-            pair<bool, double> intersectionTest = m_objects[objectIndex]->intersectionCheck(pixelRay);
+            pair<bool, double> intersectionTest = obj->intersectionCheck(pixelRay);
 
             // check for intersection
             if (intersectionTest.first) {
@@ -206,7 +211,7 @@ void Tracer::trace()
 
                     // we've found at least one intersection
                     objectDistance  = intersectionTest.second;
-                    object = m_objects[objectIndex];
+                    object = obj;
                 }
             }
         }
@@ -230,6 +235,7 @@ void Tracer::trace()
             pixelColour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * m_ambientLightingIntensity);
 
             // TODO: multiple lights
+            // for (auto light : m_lights) {
 
             // calculate Phong attenuation
             double lightDistance = Vector3(intersection, lightLocation).magnitude();

@@ -23,6 +23,10 @@ public:
     Tracer();
     ~Tracer();
 
+    // core settings
+    void setNumberOfThreads(int threads);
+    void setMaxRayDepth(int depth);
+
     // render settings 
     void setRenderResolution(int width, int height);
 
@@ -48,7 +52,7 @@ public:
 
     // trace
     void   trace();
-    Colour traceRay(Ray *ray);
+    Colour traceRay(Ray *ray, int depth);
 
     // save buffer
     void writeScreenToBmp(string filename);
@@ -66,7 +70,7 @@ private:
     double              m_ambientLightingIntensity;
 
     // tracing settings
-    int                 m_threads;
+    int                 m_threads, m_maxRayDepth;
 
     // screen buffer
     int			        m_screenBufferSize;

@@ -1,5 +1,5 @@
 # john - a c++ ray tracer
-john is cross platform ray tracer written in C++.
+john is cross platform ray tracer written in C++11.
 
 ## Prerequisites
 None. :)
