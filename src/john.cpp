@@ -5,27 +5,38 @@ using namespace std;
 int main() 
 {
     // print stuff
-    cout << "john - v0.1" << endl;
+    cout << "john - v0.1 - a Will Ridgers project\n" << endl;
 
     // TODO: command line arguments
     
 	// load tracer, apply some settings
 	Tracer *tracer = new Tracer();
-	tracer->setRenderResolution(640, 480);
+	tracer->setRenderResolution(1280, 720);
     tracer->setRenderBackgroundColour(Colour(255, 255, 255));
 
-    // TODO: threading and CPU core detection
-    // LINK: http://stackoverflow.com/questions/150355/programmatically-find-the-number-of-cores-on-a-machine
-    tracer->setNumberOfThreads(8);
+    // TODO: threading
+    unsigned threads = thread::hardware_concurrency();
+    tracer->setNumberOfThreads(threads);
 
+    // load stuff
 	tracer->init();
 	tracer->loadExampleScene();
-	tracer->trace();
+
+    // get time of start
+    chrono::high_resolution_clock::time_point traceStart = chrono::high_resolution_clock::now();
+    
+    // trace frame
+	tracer->traceImage();
+
+    // get time of stop
+    chrono::high_resolution_clock::time_point traceStop = chrono::high_resolution_clock::now();
+    unsigned traceMilliseconds = (unsigned)chrono::duration_cast<chrono::milliseconds>(traceStop - traceStart).count();
 
     // TODO: render stats, % complete, log file
-    // TODO: opengl window showing render progress
+    cout << "trace complete in " << (traceMilliseconds/1000.0) << " seconds" << endl;
+    cout << "total rays: " << tracer->getRaycount() << endl;
 
-    // TODO: move this to a seperate lib
+    // TODO: move this to a separate lib
     // save screen buffer
 	tracer->writeScreenToBmp("image.bmp");
 

@@ -51,11 +51,14 @@ public:
     bool loadScene();
 
     // trace
-    void   trace();
+    void   traceImage();
     Colour traceRay(Ray *ray, int depth);
 
     // save buffer
     void writeScreenToBmp(string filename);
+
+    // render stats
+    long getRaycount();
 
 private:
     // render settings
@@ -81,6 +84,9 @@ private:
     vector<Light*>      m_lights;
     vector<Material*>   m_materials;
     vector<Object*>     m_objects;
+
+    // render stats
+    long                m_rayCount;
 };
 
 #endif

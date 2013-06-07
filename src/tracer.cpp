@@ -12,6 +12,9 @@ Tracer::Tracer()
     useAmbientLighting(true);
     setAmbientLightingColour(Colour(255, 255, 255));
     setAmbientLightingIntensity(0.01);
+
+    // render stats
+    m_rayCount = 0;
 }
 
 Tracer::~Tracer()
@@ -115,11 +118,18 @@ bool Tracer::loadExampleScene()
     // camera
     m_camera = new Camera();
 
+    // configure camera
+    m_camera->setLocation(Vector3(200, 200, -300));
+    m_camera->setTarget(Vector3(0, 0, 0));
+    m_camera->setUpDirection(Vector3(0, -1, 0));
+    m_camera->setHorizontalFOV(90);
+    m_camera->setRenderDimensions(m_renderWidth, m_renderHeight);
+
     // props
     // props need materials
     Sphere *sphere = new Sphere();
-    sphere->setPosition(Vector3(150,0,200));
-    sphere->setRadius(100);
+    sphere->setPosition(Vector3(0,0,100));
+    sphere->setRadius(70);
 
     // give it a material
     Material *red = new Material();
@@ -135,8 +145,8 @@ bool Tracer::loadExampleScene()
 
     // another sphere!
     sphere = new Sphere();
-    sphere->setPosition(Vector3(-150,0,200));
-    sphere->setRadius(100);
+    sphere->setPosition(Vector3(-150,0,0));
+    sphere->setRadius(50);
 
     // give it a material
     Material *blue = new Material();
@@ -153,8 +163,8 @@ bool Tracer::loadExampleScene()
 
     // another sphere!
     sphere = new Sphere();
-    sphere->setPosition(Vector3(0,0,800));
-    sphere->setRadius(100);
+    sphere->setPosition(Vector3(150,0,0));
+    sphere->setRadius(50);
 
     // apply!
     sphere->setMaterial(red);
@@ -166,40 +176,29 @@ bool Tracer::loadExampleScene()
     return true;
 }
 
-void Tracer::trace()
+void Tracer::traceImage()
 {
-    // camera setup
-    Vector3 cameraLocation(0, 0, -800);
-
     // light setup
     double  lightIntensity = 100.0;
-    Vector3 lightLocation(0, 500, 0);
+    Vector3 lightLocation(0, 500, -100);
 
     for (int screenIndex = 0; screenIndex < m_screenBufferSize; ++screenIndex ) {
         // find which pixel this screen cell is for        
         int x = screenIndex % m_renderWidth;
         int y = (screenIndex - x) / m_renderWidth;
 
-        // find location of pixel, and get a ray projecting through pixel into scene
-        // TODO: better camera system with Camera class, FOV, etc.
         // TODO: anti aliasing
-        Vector3 pixelLocation((double)(x-(m_renderWidth/2)), (double)((m_renderHeight/2)-y), 0.0f);
 
-        // direction of ray
-        Vector3 rayDirection(cameraLocation, pixelLocation);
-        rayDirection.normalise();
-
-        // create ray to trace
-        Ray         pixelRay(pixelLocation, rayDirection);
+        // get our ray from the camera
+        Ray pixelRay = m_camera->getPixelRay(x, y);
+        ++m_rayCount;
 
         // find closest point of intersection and object
         Object*     object = NULL;
         double      objectDistance = 0.0f;
 
         // for every sphere
-        // TODO: use iterator instead of index.
         for (auto obj : m_objects) {
-        //for (unsigned int objectIndex = 0; objectIndex < m_objects.size(); ++objectIndex) {
             // now, check if ray intersects the sphere
             pair<bool, double> intersectionTest = obj->intersectionCheck(pixelRay);
 
@@ -256,7 +255,7 @@ void Tracer::trace()
                 pixelColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseReflectionCoeff() * shadowCheck);
 
                 // normal to camera
-                Vector3 cameraNormal(intersection, cameraLocation);
+                Vector3 cameraNormal(intersection, m_camera->getLocation());
                 cameraNormal.normalise();
 
                 // normal to light
@@ -382,4 +381,9 @@ void Tracer::writeScreenToBmp(string filename)
 
     // clean up
     delete [] imageBuffer;
+}
+
+long Tracer::getRaycount()
+{
+    return m_rayCount;
 }
