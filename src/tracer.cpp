@@ -98,19 +98,26 @@ void Tracer::addObject(Object* object)
 
 bool Tracer::loadExampleScene()
 {
-    // TODO: load this from .lua file
+    // TODO: load this from file
 
     // render settings
-    // lighting settings
     useAmbientLighting(true);
     setAmbientLightingColour(Colour(255, 255, 255));
-    setAmbientLightingIntensity(0.05);
+    setAmbientLightingIntensity(0.08);
 
-    // lights
-    // create a light
+    // first     // light
     Light *light = new Light();
-    light->setPosition(Vector3(10,10,0));
+    light->setPosition(Vector3(500,200,500));
+    light->setIntensity(80.0);
     light->setColour(Colour(255,255,255));
+    
+    // add to the scene
+    addLight(light);
+
+    // second light
+    light = new Light();
+    light->setPosition(Vector3(-500,200,-500));
+    light->setIntensity(30.0);
     
     // add to the scene
     addLight(light);
@@ -126,14 +133,13 @@ bool Tracer::loadExampleScene()
     m_camera->setRenderDimensions(m_renderWidth, m_renderHeight);
 
     // props
-    // props need materials
     Sphere *sphere = new Sphere();
     sphere->setPosition(Vector3(0,0,100));
     sphere->setRadius(70);
 
     // give it a material
     Material *red = new Material();
-    red->setColour(Colour(255,0,0));
+    red->setColour(Colour(255,183,182));
     red->setPhongSpecularity(200);
     addMaterial(red);
 
@@ -150,7 +156,7 @@ bool Tracer::loadExampleScene()
 
     // give it a material
     Material *blue = new Material();
-    blue->setColour(Colour(0,0,255));
+    blue->setColour(Colour(119,158,247));
     blue->setSpecularReflectionCoeff(0.1);
     blue->setPhongSpecularity(8);
     addMaterial(blue);
@@ -179,7 +185,7 @@ bool Tracer::loadExampleScene()
 
     // create new material
     Material *green = new Material();
-    green->setColour(Colour(0,255,0));
+    green->setColour(Colour(179,248,203));
     green->setSpecularReflectionCoeff(0);
     green->setPhongSpecularity(0);
     addMaterial(green);
@@ -196,15 +202,12 @@ bool Tracer::loadExampleScene()
 
 void Tracer::traceImage()
 {
-    // light setup
-    double  lightIntensity = 100.0;
-    Vector3 lightLocation(0, 300, -100);
-
     for (int screenIndex = 0; screenIndex < m_screenBufferSize; ++screenIndex ) {
         // find which pixel this screen cell is for        
         int x = screenIndex % m_renderWidth;
         int y = (screenIndex - x) / m_renderWidth;
 
+        // TODO: multi threading
         // TODO: anti aliasing
 
         // get our ray from the camera
@@ -253,67 +256,68 @@ void Tracer::traceImage()
             pixelColour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * m_ambientLightingIntensity);
 
             // TODO: multiple lights
-            // for (auto light : m_lights) {
+            for (auto light : m_lights) {
 
-            // calculate Phong attenuation
-            double lightDistance = Vector3(intersection, lightLocation).magnitude();
-            double lightAttenuation = lightIntensity / (pow(lightDistance, objectMaterial->getPhongAttenuation()) + 0.01);
+                // calculate Phong attenuation
+                double lightDistance = Vector3(intersection, light->getPosition()).magnitude();
+                double lightAttenuation = light->getIntensity() / (pow(lightDistance, objectMaterial->getPhongAttenuation()) + 0.01);
 
-            // get direction from intersection to lightLocation
-            Vector3 lightNormal(intersection, lightLocation);
-            lightNormal.normalise();
+                // get direction from intersection to lightLocation
+                Vector3 lightNormal(intersection, light->getPosition());
+                lightNormal.normalise();
 
-            // if the dot product is negative, it is not facing the light
-            double shadowCheck = surfaceNormal.dot(lightNormal);
+                // if the dot product is negative, it is not facing the light
+                double shadowCheck = surfaceNormal.dot(lightNormal);
 
-            // if facing the light
-            if (shadowCheck > 0.0f) {
-                // now we check it is not in shadow
-                Ray shadowRay(intersection, lightNormal);
-                m_rayCount++;
+                // if facing the light
+                if (shadowCheck > 0.0f) {
+                    // now we check it is not in shadow
+                    Ray shadowRay(intersection, lightNormal);
+                    m_rayCount++;
 
-                bool inShadow = false;
+                    bool inShadow = false;
 
-                // check all objects
-                // TODO: put this in a nice function, prep for BSP
-                for (auto obj : m_objects) {
-                    pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
-                    
-                    // TODO: and intersection is between light and object, not behind light
-                    if (intersectionTest.first && intersectionTest.second > 0.0001)
-                        inShadow = true;
-                }
+                    // check all objects
+                    // TODO: put this in a nice function, prep for BSP
+                    for (auto obj : m_objects) {
+                        pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
 
-                // only add light if not in shadow
-                if (!inShadow) {
-                    // we 'add' the light from the current light to the screen
+                        // TODO: and intersection is between light and object, not behind light
+                        if (intersectionTest.first && intersectionTest.second > 0.0001)
+                            inShadow = true;
+                    }
 
-                    // calculate diffuse lighting
-                    pixelColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseReflectionCoeff() * shadowCheck);
+                    // only add light if not in shadow
+                    if (!inShadow) {
+                        // we 'add' the light from the current light to the screen
 
-                    // normal to camera
-                    Vector3 cameraNormal(intersection, m_camera->getLocation());
-                    cameraNormal.normalise();
+                        // calculate diffuse lighting
+                        pixelColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseReflectionCoeff() * shadowCheck);
 
-                    // normal to light
-                    // NOTE: we can just use shadowCheck here because it's 
-                    //   surfaceNormal.dot(lightNormal)
-                    // also, this is already normalise, don't normalise again!
-                    Vector3 lightNormalReflection = (surfaceNormal * shadowCheck * 2) - lightNormal;
+                        // normal to camera
+                        Vector3 cameraNormal(intersection, m_camera->getLocation());
+                        cameraNormal.normalise();
 
-                    // now find the angle between these normal vectors
-                    // note, these are unit so the magnitude is 1 ;)
-                    double cosAlpha = lightNormalReflection.dot(cameraNormal);
+                        // normal to light
+                        // NOTE: we can just use shadowCheck here because it's 
+                        //   surfaceNormal.dot(lightNormal)
+                        // also, this is already normalise, don't normalise again!
+                        Vector3 lightNormalReflection = (surfaceNormal * shadowCheck * 2) - lightNormal;
 
-                    // calculate phong specular stuff
-                    double specular = pow(cosAlpha, objectMaterial->getPhongSpecularity());
+                        // now find the angle between these normal vectors
+                        // note, these are unit so the magnitude is 1 ;)
+                        double cosAlpha = lightNormalReflection.dot(cameraNormal);
 
-                    // TODO: find out why it's occasionally negative
-                    if (specular < 0)
-                        specular = 0;
+                        // calculate phong specular stuff
+                        double specular = pow(cosAlpha, objectMaterial->getPhongSpecularity());
 
-                    // add to pixel
-                    pixelColour += (255 * lightAttenuation * objectMaterial->getSpecularReflectionCoeff() * specular);
+                        // TODO: find out why it's occasionally negative
+                        if (specular < 0)
+                            specular = 0;
+
+                        // add to pixel
+                        pixelColour += (255 * lightAttenuation * objectMaterial->getSpecularReflectionCoeff() * specular);
+                    }
                 }
             }
 

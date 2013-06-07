@@ -13,15 +13,19 @@ public:
     Light(Vector3 position);
     ~Light();
 
-    Vector3 getPosition();
-    void    setPosition(Vector3 position);
-
     Colour  getColour();
     void    setColour(Colour colour);
 
+    double  getIntensity();
+    void    setIntensity(double intensity);
+
+    Vector3 getPosition();
+    void    setPosition(Vector3 position);
+
 private:
-    Vector3     m_position;
     Colour      m_colour;
+    double      m_intensity;
+    Vector3     m_position;
 };
 
 #endif

@@ -17,16 +17,6 @@ Light::~Light()
 
 }
 
-Vector3 Light::getPosition()
-{
-    return m_position;
-}
-
-void Light::setPosition(Vector3 position)
-{
-    m_position = position;
-}
-
 Colour Light::getColour()
 {
     return m_colour;
@@ -35,4 +25,24 @@ Colour Light::getColour()
 void Light::setColour(Colour colour)
 {
     m_colour = colour;
+}
+
+double Light::getIntensity()
+{
+    return m_intensity;
+}
+
+void Light::setIntensity(double intensity)
+{
+    m_intensity = intensity;
+}
+
+Vector3 Light::getPosition()
+{
+    return m_position;
+}
+
+void Light::setPosition(Vector3 position)
+{
+    m_position = position;
 }

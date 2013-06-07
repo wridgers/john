@@ -12,7 +12,7 @@ int main()
 	// load tracer, apply some settings
 	Tracer *tracer = new Tracer();
 	tracer->setRenderResolution(1280, 720);
-    tracer->setRenderBackgroundColour(Colour(255, 255, 255));
+    tracer->setRenderBackgroundColour(Colour(178, 207, 223));
 
     // TODO: threading
     unsigned threads = thread::hardware_concurrency();
