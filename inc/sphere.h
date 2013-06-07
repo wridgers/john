@@ -16,8 +16,8 @@ public:
     ~Sphere();
 
     // we only need setters here
-    void setRadius(double radius);
     void setPosition(Vector3 position);
+    void setRadius(double radius);
 
     // object maths
     pair<bool, double>  intersectionCheck(Ray& ray);

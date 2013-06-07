@@ -11,6 +11,7 @@
 #include "colour.h"
 #include "light.h"
 #include "material.h"
+#include "plane.h"
 #include "ray.h"
 #include "sphere.h"
 #include "vector3.h"
