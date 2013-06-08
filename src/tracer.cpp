@@ -108,7 +108,7 @@ bool Tracer::loadExampleScene()
     // first     // light
     Light *light = new Light();
     light->setPosition(Vector3(500,200,500));
-    light->setIntensity(80.0);
+    light->setIntensity(100.0);
     light->setColour(Colour(255,255,255));
     
     // add to the scene
@@ -134,7 +134,7 @@ bool Tracer::loadExampleScene()
 
     // props
     Sphere *sphere = new Sphere();
-    sphere->setPosition(Vector3(0,0,100));
+    sphere->setPosition(Vector3(0,100,100));
     sphere->setRadius(70);
 
     // give it a material
@@ -157,7 +157,7 @@ bool Tracer::loadExampleScene()
     // give it a material
     Material *blue = new Material();
     blue->setColour(Colour(119,158,247));
-    blue->setSpecularReflectionCoeff(0.1);
+    blue->setSpecularReflectionCoeff(0.5);
     blue->setPhongSpecularity(8);
     addMaterial(blue);
 
