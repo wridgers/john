@@ -32,7 +32,6 @@ public:
 
 private:
     // material colour
-    // TODO: diffuse colour, ambient colour, and specular colour
     Colour  m_colour;
 
     // lighting coefficients

@@ -209,117 +209,129 @@ void Tracer::traceImage()
         Ray pixelRay = m_camera->getPixelRay(x, y);
         ++m_rayCount;
 
-        // find closest point of intersection and object
-        Object*     object = NULL;
-        double      objectDistance = 0.0f;
+        // get the colour of this pixel
+        Colour pixelColour = traceRay(pixelRay);
 
-        // for every object
-        // TODO: put this in a nice function, prep for BSP
-        for (auto obj : m_objects) {
-            // now, check if ray intersects the sphere
-            pair<bool, double> intersectionTest = obj->intersectionCheck(pixelRay);
+        // set the colour of this pixel
+        m_screenBuffer[screenIndex] = pixelColour;
+    }
+}
 
-            // check for intersection
-            if (intersectionTest.first) {
-                // now find out if this is the closest.
-                if ((!object || intersectionTest.second < objectDistance) 
-                        && intersectionTest.second > 0.0001) {
+Colour Tracer::traceRay(Ray ray)
+{
+    // this will be the colour we return
+    Colour colour;
+
+    // find closest point of intersection and object
+    Object*     object = NULL;
+    double      objectDistance = 0.0f;
+
+    // for every object
+    for (auto obj : m_objects) {
+        // now, check if ray intersects the sphere
+        pair<bool, double> intersectionTest = obj->intersectionCheck(ray);
+
+        // check for intersection
+        if (intersectionTest.first) {
+            // now find out if this is the closest.
+            if ((!object || intersectionTest.second < objectDistance) 
+                && intersectionTest.second > 0.0001) {
 
                     // we've found at least one intersection
                     objectDistance  = intersectionTest.second;
                     object = obj;
-                }
             }
-        }
-
-        // if we found an intersection
-        if (object) {
-            // the coordinates of intersection
-            Vector3 intersection = pixelRay.at(objectDistance);
-
-            // we calculate the direction of the normal at this intersection
-            Vector3 surfaceNormal = object->surfaceNormal(intersection);
-
-            // this will be the eventual pixel colour
-            Colour pixelColour;
-
-            // get sphere's material
-            Material *objectMaterial = object->getMaterial();
-            Colour objectColour      = objectMaterial->getColour();
-
-            // calculate ambient lighting
-            pixelColour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * m_ambientLightingIntensity);
-
-            // for each light
-            for (auto light : m_lights) {
-
-                // calculate Phong attenuation
-                double lightDistance = Vector3(intersection, light->getPosition()).magnitude();
-                double lightAttenuation = light->getIntensity() / (pow(lightDistance, objectMaterial->getPhongAttenuation()) + 0.01);
-
-                // get direction from intersection to lightLocation
-                Vector3 lightNormal(intersection, light->getPosition());
-                lightNormal.normalise();
-
-                // if the dot product is negative, it is not facing the light
-                double shadowCheck = surfaceNormal.dot(lightNormal);
-
-                // if facing the light
-                if (shadowCheck > 0.0f) {
-                    // now we check it is not in shadow
-                    Ray shadowRay(intersection, lightNormal);
-                    m_rayCount++;
-
-                    bool inShadow = false;
-
-                    // check all objects
-                    for (auto obj : m_objects) {
-                        pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
-
-                        // TODO: and intersection is between light and object, not behind light
-                        if (intersectionTest.first && intersectionTest.second > 0.0001)
-                            inShadow = true;
-                    }
-
-                    // only add light if not in shadow
-                    if (!inShadow) {
-                        // we 'add' the light from the current light to the screen
-
-                        // calculate diffuse lighting
-                        pixelColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseReflectionCoeff() * shadowCheck);
-
-                        // normal to camera
-                        Vector3 cameraNormal(intersection, m_camera->getPosition());
-                        cameraNormal.normalise();
-
-                        // normal to light
-                        // NOTE: we can just use shadowCheck here because it's 
-                        //   surfaceNormal.dot(lightNormal)
-                        // also, this is already normalise, don't normalise again!
-                        Vector3 lightNormalReflection = (surfaceNormal * shadowCheck * 2) - lightNormal;
-
-                        // now find the angle between these normal vectors
-                        // note, these are unit so the magnitude is 1 ;)
-                        double cosAlpha = lightNormalReflection.dot(cameraNormal);
-
-                        // calculate phong specular stuff
-                        double specular = pow(cosAlpha, objectMaterial->getPhongSpecularity());
-
-                        // TODO: find out why it's occasionally negative
-                        if (specular < 0)
-                            specular = 0;
-
-                        // add to pixel
-                        pixelColour += (255 * lightAttenuation * objectMaterial->getSpecularReflectionCoeff() * specular);
-                    }
-                }
-            }
-
-            // set it
-            m_screenBuffer[screenIndex] = pixelColour;
         }
     }
+
+    // if we found an intersection
+    if (object) {
+        // the coordinates of intersection
+        Vector3 intersection = ray.at(objectDistance);
+
+        // we calculate the direction of the normal at this intersection
+        Vector3 surfaceNormal = object->surfaceNormal(intersection);
+
+        // get sphere's material
+        Material *objectMaterial = object->getMaterial();
+        Colour objectColour      = objectMaterial->getColour();
+
+        // calculate ambient lighting
+        colour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * m_ambientLightingIntensity);
+
+        // for each light
+        for (auto light : m_lights) {
+
+            // calculate Phong attenuation
+            double lightDistance = Vector3(intersection, light->getPosition()).magnitude();
+            double lightAttenuation = light->getIntensity() / (pow(lightDistance, objectMaterial->getPhongAttenuation()) + 0.01);
+
+            // get direction from intersection to lightLocation
+            Vector3 lightNormal(intersection, light->getPosition());
+            lightNormal.normalise();
+
+            // if the dot product is negative, it is not facing the light
+            double shadowCheck = surfaceNormal.dot(lightNormal);
+
+            // if facing the light
+            if (shadowCheck > 0.0f) {
+                // now we check it is not in shadow
+                Ray shadowRay(intersection, lightNormal);
+                m_rayCount++;
+
+                bool inShadow = false;
+
+                // check all objects
+                for (auto obj : m_objects) {
+                    pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
+
+                    // TODO: and intersection is between light and object, not behind light
+                    if (intersectionTest.first && intersectionTest.second > 0.0001)
+                        inShadow = true;
+                }
+
+                // only add light if not in shadow
+                if (!inShadow) {
+                    // we 'add' the light from the current light to the screen
+
+                    // calculate diffuse lighting
+                    colour += objectColour * (lightAttenuation * objectMaterial->getDiffuseReflectionCoeff() * shadowCheck);
+
+                    // normal to camera
+                    Vector3 cameraNormal(intersection, m_camera->getPosition());
+                    cameraNormal.normalise();
+
+                    // reflect light normal around surface normal
+                    // NOTE: we can just use shadowCheck here because it's 
+                    //   surfaceNormal.dot(lightNormal)
+                    // also, this is already normalise, don't normalise again!
+                    Vector3 lightNormalReflection = (surfaceNormal * shadowCheck * 2) - lightNormal;
+
+                    // now find the angle between these normal vectors
+                    // note, these are unit so the magnitude is 1 ;)
+                    double cosAlpha = lightNormalReflection.dot(cameraNormal);
+
+                    // calculate phong specular stuff
+                    double specular = pow(cosAlpha, objectMaterial->getPhongSpecularity());
+
+                    // TODO: find out why it's occasionally negative
+                    if (specular < 0)
+                        specular = 0;
+
+                    // add to pixel
+                    colour += (255 * lightAttenuation * objectMaterial->getSpecularReflectionCoeff() * specular);
+                }
+            }
+        }
+
+        // now we've done all the calculations, return what we got
+        return colour;
+    } 
+
+    // ray does not intersect any objects     // hence ray must extend into the background of scene
+    return m_renderBackgroundColour;
 }
+
 
 void Tracer::writeScreenToBmp(string filename)
 {

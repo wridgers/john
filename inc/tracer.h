@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "cameras/camera.h"
@@ -42,18 +43,18 @@ public:
     // prepare
     bool init();
 
-    // scene loading
-    // TODO: add a scene handler
+    // scene management
     void addLight(Light* light);
     void addMaterial(Material* material);
     void addObject(Object* object);
 
+    // load scene
     bool loadExampleScene();
     bool loadScene();
 
     // trace
     void   traceImage();
-    Colour traceRay(Ray *ray, int depth);
+    Colour traceRay(Ray ray);
 
     // save buffer
     void writeScreenToBmp(string filename);
