@@ -1,7 +1,7 @@
 #ifndef __RAY_H__
 #define __RAY_H__
 
-#include "vector3.h"
+#include "maths/vector3.h"
 
 class Ray
 {

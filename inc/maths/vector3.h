@@ -1,8 +1,8 @@
 #ifndef __VECTOR3_H__
 #define __VECTOR3_H__
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 using namespace std;
 

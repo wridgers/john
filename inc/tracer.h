@@ -7,14 +7,14 @@
 #include <string>
 #include <vector>
 
-#include "camera.h"
-#include "colour.h"
-#include "light.h"
-#include "material.h"
-#include "plane.h"
-#include "ray.h"
-#include "sphere.h"
-#include "vector3.h"
+#include "cameras/camera.h"
+#include "lights/light.h"
+#include "materials/material.h"
+#include "maths/vector3.h"
+#include "objects/plane.h"
+#include "objects/sphere.h"
+#include "types/colour.h"
+#include "types/ray.h"
 
 using namespace std;
 

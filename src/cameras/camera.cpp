@@ -1,9 +1,9 @@
-#include "camera.h"
+#include "cameras/camera.h"
 
 Camera::Camera()
 {
     // sane defaults?
-    setLocation(Vector3(0, 0, -100));
+    setPosition(Vector3(0, 0, -100));
     setTarget(Vector3());
 
     // up is inverse because z is negative
@@ -21,9 +21,9 @@ Camera::~Camera()
 
 }
 
-void Camera::setLocation(Vector3 location)
+void Camera::setPosition(Vector3 position)
 {
-    m_location = location;
+    m_position = position;
 
     recalculate();
 }
@@ -38,7 +38,7 @@ void Camera::setDirection(Vector3 direction)
 
 void Camera::setTarget(Vector3 target)
 {
-    m_direction = Vector3(m_location, target);
+    m_direction = Vector3(m_position, target);
     m_direction.normalise();
 
     recalculate();
@@ -61,9 +61,9 @@ void Camera::setHorizontalFOV(double degrees)
     m_horizontalFOV = (degrees) * (3.14159 / 180.0);
 }
 
-Vector3 Camera::getLocation()
+Vector3 Camera::getPosition()
 {
-    return m_location;
+    return m_position;
 }
 
 void Camera::setRenderDimensions(int width, int height)
@@ -89,7 +89,7 @@ Ray Camera::getPixelRay(double pixelX, double pixelY)
     rayDirection.normalise();
 
     // return Ray object
-    return Ray(m_location, rayDirection);
+    return Ray(m_position, rayDirection);
 }
 
 void Camera::recalculate()

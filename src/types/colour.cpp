@@ -1,4 +1,4 @@
-#include "colour.h"
+#include "types/colour.h"
 
 Colour::Colour()
 {

@@ -1,8 +1,8 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
 
-#include "ray.h"
-#include "vector3.h"
+#include "maths/vector3.h"
+#include "types/ray.h"
 
 using namespace std;
 
@@ -13,13 +13,13 @@ public:
     ~Camera();
 
     // control location, direction, and up vector
-    void    setLocation(Vector3 location);
+    void    setPosition(Vector3 position);
     void    setDirection(Vector3 direction);
     void    setTarget(Vector3 target);
     void    setUpDirection(Vector3 up);
 
     // we sometimes need this
-    Vector3 getLocation();
+    Vector3 getPosition();
 
     // control fov
     void    setHorizontalFOV(int degrees);
@@ -37,7 +37,7 @@ private:
     void    recalculate();
 
     // position and orientation
-    Vector3         m_location, m_direction;
+    Vector3         m_position, m_direction;
     Vector3         m_up;
 
     // image plane 

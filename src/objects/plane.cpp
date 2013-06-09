@@ -1,4 +1,4 @@
-#include "plane.h"
+#include "objects/plane.h"
 
 Plane::Plane()
 {

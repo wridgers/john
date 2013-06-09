@@ -98,8 +98,6 @@ void Tracer::addObject(Object* object)
 
 bool Tracer::loadExampleScene()
 {
-    // TODO: load this from file
-
     // render settings
     useAmbientLighting(true);
     setAmbientLightingColour(Colour(255, 255, 255));
@@ -126,7 +124,7 @@ bool Tracer::loadExampleScene()
     m_camera = new Camera();
 
     // configure camera
-    m_camera->setLocation(Vector3(200, 200, -300));
+    m_camera->setPosition(Vector3(200, 200, -300));
     m_camera->setTarget(Vector3(0, 0, 0));
     m_camera->setUpDirection(Vector3(0, -1, 0));
     m_camera->setHorizontalFOV(120);
@@ -207,9 +205,6 @@ void Tracer::traceImage()
         int x = screenIndex % m_renderWidth;
         int y = (screenIndex - x) / m_renderWidth;
 
-        // TODO: multi threading
-        // TODO: anti aliasing
-
         // get our ray from the camera
         Ray pixelRay = m_camera->getPixelRay(x, y);
         ++m_rayCount;
@@ -255,7 +250,7 @@ void Tracer::traceImage()
             // calculate ambient lighting
             pixelColour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * m_ambientLightingIntensity);
 
-            // TODO: multiple lights
+            // for each light
             for (auto light : m_lights) {
 
                 // calculate Phong attenuation
@@ -278,7 +273,6 @@ void Tracer::traceImage()
                     bool inShadow = false;
 
                     // check all objects
-                    // TODO: put this in a nice function, prep for BSP
                     for (auto obj : m_objects) {
                         pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
 
@@ -295,7 +289,7 @@ void Tracer::traceImage()
                         pixelColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseReflectionCoeff() * shadowCheck);
 
                         // normal to camera
-                        Vector3 cameraNormal(intersection, m_camera->getLocation());
+                        Vector3 cameraNormal(intersection, m_camera->getPosition());
                         cameraNormal.normalise();
 
                         // normal to light
@@ -320,10 +314,6 @@ void Tracer::traceImage()
                     }
                 }
             }
-
-            // TODO: ADD REFLECTION RAY
-
-            // TODO: ADD REFRACTION RAY
 
             // set it
             m_screenBuffer[screenIndex] = pixelColour;

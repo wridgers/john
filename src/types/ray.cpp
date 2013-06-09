@@ -1,4 +1,4 @@
-#include "ray.h"
+#include "types/ray.h"
 
 Ray::Ray(Vector3 origin, Vector3 direction)
     : m_origin(origin), m_direction(direction)
