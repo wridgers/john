@@ -23,6 +23,10 @@ public:
     void    setSpecularReflectionCoeff(double coeff);
     double  getSpecularReflectionCoeff();
 
+    // reflection
+    void    setReflectionalCoeff(double coeff);
+    double  getReflectionalCoeff();
+
     // phong light model
     void    setPhongAttenuation(double coeff);
     double  getPhongAttenuation();
@@ -38,6 +42,9 @@ private:
     double  m_ambientReflectionCoeff;
     double  m_diffuseReflectionCoeff;
     double  m_specularReflectionCoeff;
+
+    // reflection
+    double  m_reflectionCoeff;
 
     // phong variables
     double  m_phongAttenuation;

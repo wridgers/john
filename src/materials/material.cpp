@@ -7,6 +7,8 @@ Material::Material()
     m_diffuseReflectionCoeff = 0.3;
     m_specularReflectionCoeff = 0.2;
 
+    m_reflectionCoeff = 0.0;
+
     m_phongAttenuation = 0.5;
     m_phongSpecularity = 5;
 }
@@ -54,6 +56,16 @@ void Material::setSpecularReflectionCoeff(double coeff)
 double Material::getSpecularReflectionCoeff()
 {
     return m_specularReflectionCoeff;
+}
+
+void Material::setReflectionalCoeff(double coeff)
+{
+    m_reflectionCoeff = coeff;
+}
+
+double Material::getReflectionalCoeff()
+{
+    return m_reflectionCoeff;
 }
 
 void Material::setPhongAttenuation(double coeff)

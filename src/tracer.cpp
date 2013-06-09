@@ -139,6 +139,7 @@ bool Tracer::loadExampleScene()
     Material *red = new Material();
     red->setColour(Colour(255,183,182));
     red->setPhongSpecularity(200);
+    red->setReflectionalCoeff(1.0);
     addMaterial(red);
 
     // apply!
@@ -157,6 +158,7 @@ bool Tracer::loadExampleScene()
     blue->setColour(Colour(119,158,247));
     blue->setSpecularReflectionCoeff(0.5);
     blue->setPhongSpecularity(8);
+    blue->setReflectionalCoeff(1.0);
     addMaterial(blue);
 
     // apply!
@@ -323,6 +325,22 @@ Colour Tracer::traceRay(Ray ray)
                 }
             }
         }
+
+        // calculate reflection ray
+        if (objectMaterial->getReflectionalCoeff() > 0) {
+            // first, calculation direction of reflection
+            Vector3 reflectionDirection = (surfaceNormal * surfaceNormal.dot(-ray.getDirection()) * 2) + ray.getDirection();
+
+            // get new ray
+            Ray reflectionRay = Ray(intersection, reflectionDirection);
+            m_rayCount++;
+
+            // trace it!
+            colour += traceRay(reflectionRay);
+        }
+
+        // calculate refraction ray
+        // WIP ;)
 
         // now we've done all the calculations, return what we got
         return colour;
