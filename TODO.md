@@ -9,11 +9,12 @@ A list of things to do
   * scene handler
   * load scene from file
    - blender exporter
-  * multi threading
-  * anti aliasing
   * bsp
-  * reflection
-  * refraction
+
+ - Objects
+  * triangles
+  * boxes
+  * cylinder
 
  - Materials
-  * diffuse, ambient, and specular colours
+  * refraction

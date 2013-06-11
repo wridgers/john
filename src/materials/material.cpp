@@ -3,11 +3,11 @@
 Material::Material()
 {
     // sane defaults
-    m_ambientReflectionCoeff = 0.6;
-    m_diffuseReflectionCoeff = 0.3;
-    m_specularReflectionCoeff = 0.2;
+    m_ambientIntensity = 0.6;
+    m_diffuseIntensity = 0.3;
+    m_specularIntensity = 0.2;
 
-    m_reflectionCoeff = 0.0;
+    m_reflectivity = 0.0;
 
     m_phongAttenuation = 0.5;
     m_phongSpecularity = 5;
@@ -18,59 +18,49 @@ Material::~Material()
 
 }
 
-Colour Material::getColour()
+void Material::setAmbientIntensity(double intensity)
 {
-    return m_colour;
+    m_ambientIntensity = intensity;
 }
 
-void Material::setColour(Colour colour)
+double Material::getAmbientIntensity()
 {
-    m_colour = colour;
+    return m_ambientIntensity;
 }
 
-void Material::setAmbientReflectionCoeff(double coeff)
+Colour Material::getDiffuseColour()
 {
-    m_ambientReflectionCoeff = coeff;
+    return m_diffuseColour;
 }
 
-double Material::getAmbientReflectionCoeff()
+void Material::setDiffuseColour(Colour colour)
 {
-    return m_ambientReflectionCoeff;
+    m_diffuseColour = colour;
 }
 
-void Material::setDiffuseReflectionCoeff(double coeff)
+void Material::setDiffuseIntensity(double intensity)
 {
-    m_diffuseReflectionCoeff = coeff;
+    m_diffuseIntensity = intensity;
 }
 
-double Material::getDiffuseReflectionCoeff()
+double Material::getDiffuseIntensity()
 {
-    return m_diffuseReflectionCoeff;
+    return m_diffuseIntensity;
 }
 
-void Material::setSpecularReflectionCoeff(double coeff)
+void Material::setSpecularIntensity(double intensity)
 {
-    m_specularReflectionCoeff = coeff;
+    m_specularIntensity = intensity;
 }
 
-double Material::getSpecularReflectionCoeff()
+double Material::getSpecularIntensity()
 {
-    return m_specularReflectionCoeff;
+    return m_specularIntensity;
 }
 
-void Material::setReflectionalCoeff(double coeff)
+void Material::setPhongAttenuation(double attenuation)
 {
-    m_reflectionCoeff = coeff;
-}
-
-double Material::getReflectionalCoeff()
-{
-    return m_reflectionCoeff;
-}
-
-void Material::setPhongAttenuation(double coeff)
-{
-    m_phongAttenuation = coeff;
+    m_phongAttenuation = attenuation;
 }
 
 double Material::getPhongAttenuation()
@@ -78,12 +68,22 @@ double Material::getPhongAttenuation()
     return m_phongAttenuation;
 }
 
-void Material::setPhongSpecularity(double coeff)
+void Material::setPhongSpecularity(double specularity)
 {
-    m_phongSpecularity = coeff;
+    m_phongSpecularity = specularity;
 }
 
 double Material::getPhongSpecularity()
 {
     return m_phongSpecularity;
+}
+
+void Material::setReflectivity(double reflectivity)
+{
+    m_reflectivity = reflectivity;
+}
+
+double Material::getReflectivity()
+{
+    return m_reflectivity;
 }

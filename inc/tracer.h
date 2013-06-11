@@ -4,6 +4,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -53,7 +54,8 @@ public:
     bool loadScene();
 
     // trace
-    void   traceImage();
+    void   trace();
+    void   traceImage(int threadOffset);
     Colour traceRay(Ray ray);
 
     // save buffer
@@ -74,8 +76,8 @@ private:
     Colour              m_ambientLightingColour;
     double              m_ambientLightingIntensity;
 
-    // tracing settings
-    int                 m_threads, m_maxRayDepth;
+    // threading
+   int                  m_threads;
 
     // screen buffer
     int			        m_screenBufferSize;

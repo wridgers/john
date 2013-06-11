@@ -76,7 +76,7 @@ bool Tracer::init()
     m_screenBuffer = new Colour[m_screenBufferSize];
 
     for (int i = 0; i < m_screenBufferSize; ++i)
-        m_screenBuffer[i] = m_renderBackgroundColour;
+        m_screenBuffer[i] = Colour();
 
     return true;
 }
@@ -103,130 +103,144 @@ bool Tracer::loadExampleScene()
     setAmbientLightingColour(Colour(255, 255, 255));
     setAmbientLightingIntensity(0.08);
 
-    // first     // light
+    // first light
     Light *light = new Light();
-    light->setPosition(Vector3(500,200,500));
-    light->setIntensity(100.0);
+    light->setPosition(Vector3(-300,400,-100));
+    light->setIntensity(40.0);
     light->setColour(Colour(255,255,255));
-    
-    // add to the scene
     addLight(light);
 
-    // second light
     light = new Light();
-    light->setPosition(Vector3(-500,200,-500));
-    light->setIntensity(30.0);
-    
-    // add to the scene
+    light->setPosition(Vector3(300,400,-100));
+    light->setIntensity(40.0);
+    light->setColour(Colour(255,255,255));
     addLight(light);
      
     // camera
     m_camera = new Camera();
-
-    // configure camera
-    m_camera->setPosition(Vector3(200, 200, -300));
-    m_camera->setTarget(Vector3(0, 0, 0));
+    m_camera->setPosition(Vector3(0, 150, -800));
+    m_camera->setTarget(Vector3(0, 50, 0));
     m_camera->setUpDirection(Vector3(0, -1, 0));
-    m_camera->setHorizontalFOV(120);
+    m_camera->setHorizontalFOV(60);
     m_camera->setRenderDimensions(m_renderWidth, m_renderHeight);
 
-    // props
-    Sphere *sphere = new Sphere();
-    sphere->setPosition(Vector3(0,100,100));
-    sphere->setRadius(70);
-
-    // give it a material
+    // red material
     Material *red = new Material();
-    red->setColour(Colour(255,183,182));
+    red->setDiffuseColour(Colour(255,183,182));
     red->setPhongSpecularity(200);
-    red->setReflectionalCoeff(1.0);
+    red->setReflectivity(0.4);
     addMaterial(red);
 
-    // apply!
-    sphere->setMaterial(red);
-
-    // add it to the scene
-    addObject(sphere);
-
-    // another sphere!
-    sphere = new Sphere();
-    sphere->setPosition(Vector3(-150,0,0));
-    sphere->setRadius(50);
-
-    // give it a material
+    // blue material
     Material *blue = new Material();
-    blue->setColour(Colour(119,158,247));
-    blue->setSpecularReflectionCoeff(0.5);
+    blue->setDiffuseColour(Colour(119,158,247));
+    blue->setSpecularIntensity(0.5);
     blue->setPhongSpecularity(8);
-    blue->setReflectionalCoeff(1.0);
+    blue->setReflectivity(0.2);
     addMaterial(blue);
 
-    // apply!
-    sphere->setMaterial(blue);
+    // green material
+    Material *green = new Material();
+    green->setDiffuseColour(Colour(179,248,203));
+    green->setSpecularIntensity(0);
+    green->setPhongSpecularity(0);
+    addMaterial(green);
 
-    // add it to the scene
+    // green material
+    Material *mirror = new Material();
+    mirror->setDiffuseColour(Colour(255,255,255));
+    mirror->setSpecularIntensity(0.1);
+    mirror->setPhongSpecularity(50);
+    mirror->setReflectivity(0.8);
+    addMaterial(mirror);
+
+    // sphere
+    Sphere *sphere = new Sphere();
+    sphere->setPosition(Vector3(-200,100,0));
+    sphere->setRadius(100);
+    sphere->setMaterial(red);
     addObject(sphere);
 
     // another sphere!
     sphere = new Sphere();
-    sphere->setPosition(Vector3(150,0,0));
-    sphere->setRadius(50);
+    sphere->setPosition(Vector3(-10,80,0));
+    sphere->setRadius(80);
+    sphere->setMaterial(blue);
+    addObject(sphere);
 
-    // apply!
-    sphere->setMaterial(red);
+    // another sphere!
+    sphere = new Sphere();
+    sphere->setPosition(Vector3(-80,60,-125));
+    sphere->setRadius(60);
+    sphere->setMaterial(mirror);
+    addObject(sphere);
 
-    // add it to the scene
+    // another sphere!
+    sphere = new Sphere();
+    sphere->setPosition(Vector3(-180,40,-125));
+    sphere->setRadius(40);
+    sphere->setMaterial(mirror);
     addObject(sphere);
 
     // create plane
     Plane *plane = new Plane();
     plane->setNormal(Vector3(0,1,0));
     plane->setPosition(Vector3(0,0,0));
-
-    // create new material
-    Material *green = new Material();
-    green->setColour(Colour(179,248,203));
-    green->setSpecularReflectionCoeff(0);
-    green->setPhongSpecularity(0);
-    addMaterial(green);
-    
-    // apply!
     plane->setMaterial(green);
-
-    // add it to the scene
     addObject(plane);
 
     // action!
     return true;
 }
 
-void Tracer::traceImage()
+void Tracer::trace()
 {
-    for (int screenIndex = 0; screenIndex < m_screenBufferSize; ++screenIndex ) {
+    // threads
+    thread *traceThreads = new thread[m_threads];
+
+    // spawn threads
+    for (int threadId = 0; threadId < m_threads; ++threadId) 
+        traceThreads[threadId] = thread(&Tracer::traceImage, this, threadId);
+
+    // join threads
+    for (int threadId = 0; threadId < m_threads; ++threadId) 
+        traceThreads[threadId].join();
+
+    // done! clean up
+    delete [] traceThreads;
+}
+
+void Tracer::traceImage(int threadOffset)
+{
+    for (int screenIndex = threadOffset; screenIndex < m_screenBufferSize; screenIndex += m_threads ) {
         // find which pixel this screen cell is for        
         int x = screenIndex % m_renderWidth;
         int y = (screenIndex - x) / m_renderWidth;
 
-        // get our ray from the camera
-        Ray pixelRay = m_camera->getPixelRay(x, y);
-        ++m_rayCount;
+        // anti aliasing
+        for (double offsetX = -0.25; offsetX <= 0.25; offsetX += 0.5) {
+            for (double offsetY = -0.25; offsetY <= 0.25; offsetY += 0.5) {
+                // get our ray from the camera
+                Ray primaryRay = m_camera->getPixelRay(x, y, offsetX, offsetY);
 
-        // get the colour of this pixel
-        Colour pixelColour = traceRay(pixelRay);
+                // get the colour of this pixel
+                Colour primaryColour = traceRay(primaryRay);
 
-        // set the colour of this pixel
-        m_screenBuffer[screenIndex] = pixelColour;
+                // set the colour of this pixel
+                m_screenBuffer[screenIndex] += (primaryColour * 0.25);
+            }
+        }
     }
 }
 
 Colour Tracer::traceRay(Ray ray)
 {
     // this will be the colour we return
-    Colour colour;
+    Colour rayColour;
 
     // find closest point of intersection and object
     Object*     object = NULL;
-    double      objectDistance = 0.0f;
+    double      objectDistance = 0.0;
 
     // for every object
     for (auto obj : m_objects) {
@@ -256,10 +270,10 @@ Colour Tracer::traceRay(Ray ray)
 
         // get sphere's material
         Material *objectMaterial = object->getMaterial();
-        Colour objectColour      = objectMaterial->getColour();
+        Colour objectColour      = objectMaterial->getDiffuseColour();
 
         // calculate ambient lighting
-        colour += objectColour * (objectMaterial->getAmbientReflectionCoeff() * m_ambientLightingIntensity);
+        rayColour += objectColour * (objectMaterial->getAmbientIntensity() * m_ambientLightingIntensity);
 
         // for each light
         for (auto light : m_lights) {
@@ -279,7 +293,6 @@ Colour Tracer::traceRay(Ray ray)
             if (shadowCheck > 0.0f) {
                 // now we check it is not in shadow
                 Ray shadowRay(intersection, lightNormal);
-                m_rayCount++;
 
                 bool inShadow = false;
 
@@ -297,7 +310,7 @@ Colour Tracer::traceRay(Ray ray)
                     // we 'add' the light from the current light to the screen
 
                     // calculate diffuse lighting
-                    colour += objectColour * (lightAttenuation * objectMaterial->getDiffuseReflectionCoeff() * shadowCheck);
+                    rayColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseIntensity() * shadowCheck);
 
                     // normal to camera
                     Vector3 cameraNormal(intersection, m_camera->getPosition());
@@ -321,29 +334,29 @@ Colour Tracer::traceRay(Ray ray)
                         specular = 0;
 
                     // add to pixel
-                    colour += (255 * lightAttenuation * objectMaterial->getSpecularReflectionCoeff() * specular);
+                    rayColour += (255 * lightAttenuation * objectMaterial->getSpecularIntensity() * specular);
                 }
             }
         }
 
         // calculate reflection ray
-        if (objectMaterial->getReflectionalCoeff() > 0) {
+        if (objectMaterial->getReflectivity() > 0) {
             // first, calculation direction of reflection
+            // note, the ray direction must be negated
             Vector3 reflectionDirection = (surfaceNormal * surfaceNormal.dot(-ray.getDirection()) * 2) + ray.getDirection();
 
             // get new ray
             Ray reflectionRay = Ray(intersection, reflectionDirection);
-            m_rayCount++;
 
-            // trace it!
-            colour += traceRay(reflectionRay);
+            // trace ray and add colour we get
+            rayColour += (traceRay(reflectionRay) * objectMaterial->getReflectivity() );
         }
 
-        // calculate refraction ray
+        // calculate refraction/transmission ray
         // WIP ;)
 
         // now we've done all the calculations, return what we got
-        return colour;
+        return rayColour;
     } 
 
     // ray does not intersect any objects     // hence ray must extend into the background of scene

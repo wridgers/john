@@ -9,47 +9,45 @@ public:
     Material();
     ~Material();
 
-    // material colour settings
-    Colour  getColour();
-    void    setColour(Colour colour);
+    // ambient
+    void    setAmbientIntensity(double intensity);
+    double  getAmbientIntensity();
 
-    // lighting coefficients
-    void    setAmbientReflectionCoeff(double coeff);
-    double  getAmbientReflectionCoeff();
+    // diffuse
+    void    setDiffuseColour(Colour colour);
+    Colour  getDiffuseColour();
+    void    setDiffuseIntensity(double intensity);
+    double  getDiffuseIntensity();
 
-    void    setDiffuseReflectionCoeff(double coeff);
-    double  getDiffuseReflectionCoeff();
+    // specular
+    void    setSpecularIntensity(double intensity);
+    double  getSpecularIntensity();
 
-    void    setSpecularReflectionCoeff(double coeff);
-    double  getSpecularReflectionCoeff();
-
-    // reflection
-    void    setReflectionalCoeff(double coeff);
-    double  getReflectionalCoeff();
-
-    // phong light model
-    void    setPhongAttenuation(double coeff);
+    void    setPhongAttenuation(double attenuation);
     double  getPhongAttenuation();
 
-    void    setPhongSpecularity(double coeff);
+    void    setPhongSpecularity(double specularity);
     double  getPhongSpecularity();
 
-private:
-    // material colour
-    Colour  m_colour;
-
-    // lighting coefficients
-    double  m_ambientReflectionCoeff;
-    double  m_diffuseReflectionCoeff;
-    double  m_specularReflectionCoeff;
-
     // reflection
-    double  m_reflectionCoeff;
+    void    setReflectivity(double reflectivity);
+    double  getReflectivity();
 
-    // phong variables
+private:
+    // ambient
+    double  m_ambientIntensity;
+
+    // diffuse
+    Colour  m_diffuseColour;
+    double  m_diffuseIntensity;
+    
+    // specular
+    double  m_specularIntensity;
     double  m_phongAttenuation;
     double  m_phongSpecularity;
 
+    // reflection
+    double  m_reflectivity;
 };
 
 #endif

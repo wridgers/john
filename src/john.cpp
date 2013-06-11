@@ -9,7 +9,7 @@ int main()
 
 	// load tracer, apply some settings
 	Tracer *tracer = new Tracer();
-	tracer->setRenderResolution(1280, 720);
+	tracer->setRenderResolution(1920, 1080);
     tracer->setRenderBackgroundColour(Colour(178, 207, 223));
 
     // guess number of threads to use
@@ -24,7 +24,7 @@ int main()
     chrono::high_resolution_clock::time_point traceStart = chrono::high_resolution_clock::now();
     
     // trace frame
-	tracer->traceImage();
+    tracer->trace();
 
     // get time of stop
     chrono::high_resolution_clock::time_point traceStop = chrono::high_resolution_clock::now();
@@ -32,7 +32,7 @@ int main()
 
     // TODO: render stats, % complete, log file
     cout << "trace complete in " << (traceMilliseconds/1000.0) << " seconds" << endl;
-    cout << "total rays: " << tracer->getRaycount() << endl;
+    // cout << "total rays: " << tracer->getRaycount() << endl;
 
     // save screen buffer
 	tracer->writeScreenToBmp("image.bmp");

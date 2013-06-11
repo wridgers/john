@@ -22,15 +22,13 @@ public:
     Vector3 getPosition();
 
     // control fov
-    void    setHorizontalFOV(int degrees);
     void    setHorizontalFOV(double degrees);
 
     // set render dimensions
     void    setRenderDimensions(int width, int height);
 
     // get rays
-    Ray     getPixelRay(int pixelX, int pixelY);
-    Ray     getPixelRay(double pixelX, double pixelY);
+    Ray     getPixelRay(double pixelX, double pixelY, double offsetX = 0.0, double offsetY = 0.0);
 
 private:
     // recalculate direction, aspect, etc, on change

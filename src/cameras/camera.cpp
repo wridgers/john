@@ -3,17 +3,20 @@
 Camera::Camera()
 {
     // sane defaults?
-    setPosition(Vector3(0, 0, -100));
-    setTarget(Vector3());
+    m_position = Vector3(0, 0, -100);
+    m_direction = Vector3() - m_position;
 
     // up is inverse because z is negative
-    setUpDirection(Vector3(0, -1, 0));
+    m_up = Vector3(0, -1, 0);
 
     // 90 degrees
-    setHorizontalFOV(90);
+    m_horizontalFOV = 90.0;
 
     // sane default? although in reality this should always be called by Tracer
-    setRenderDimensions(640, 480);
+    m_renderWidth = 640;
+    m_renderHeight = 480;
+
+    recalculate();
 }
 
 Camera::~Camera()
@@ -51,14 +54,11 @@ void Camera::setUpDirection(Vector3 up)
     recalculate();
 }
 
-void Camera::setHorizontalFOV(int degrees)
-{
-    setHorizontalFOV((double)degrees);
-}
-
 void Camera::setHorizontalFOV(double degrees)
 {
     m_horizontalFOV = (degrees) * (3.14159 / 180.0);
+
+    recalculate();
 }
 
 Vector3 Camera::getPosition()
@@ -74,16 +74,11 @@ void Camera::setRenderDimensions(int width, int height)
     recalculate();
 }
 
-Ray Camera::getPixelRay(int pixelX, int pixelY)
-{
-    return getPixelRay((double)pixelX, (double)pixelY);
-}
-
-Ray Camera::getPixelRay(double pixelX, double pixelY)
+Ray Camera::getPixelRay(double pixelX, double pixelY, double offsetX, double offsetY)
 {
     // direction of ray
-    Vector3 rayDirection = m_direction + m_imagePlaneX*(pixelX/m_renderWidth - 0.5)*m_imagePlaneWidth
-        + m_imagePlaneY*(pixelY/m_renderHeight - 0.5)*m_imagePlaneHeight;
+    Vector3 rayDirection = m_direction + m_imagePlaneX*((pixelX+offsetX)/m_renderWidth - 0.5)*m_imagePlaneWidth
+        + m_imagePlaneY*((pixelY+offsetY)/m_renderHeight - 0.5)*m_imagePlaneHeight;
 
     // don't forget to normalise
     rayDirection.normalise();
