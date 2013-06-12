@@ -12,9 +12,6 @@ Tracer::Tracer()
     useAmbientLighting(true);
     setAmbientLightingColour(Colour(255, 255, 255));
     setAmbientLightingIntensity(0.01);
-
-    // render stats
-    m_rayCount = 0;
 }
 
 Tracer::~Tracer()
@@ -22,6 +19,9 @@ Tracer::~Tracer()
     // delete the screen buffer
     if (m_screenBuffer)
         delete [] m_screenBuffer;
+
+    // delete the stats
+    delete [] m_stats;
 
     // delete the camera
     delete m_camera;
@@ -41,7 +41,7 @@ Tracer::~Tracer()
 
 void Tracer::setNumberOfThreads(int threads)
 {
-    m_threads = threads;
+    m_numberOfThreads = threads;
 }
 
 void Tracer::setRenderResolution(int width, int height)
@@ -72,11 +72,18 @@ void Tracer::setAmbientLightingIntensity(double intensity)
 
 bool Tracer::init()
 {
+    // initialise screen buffer
     m_screenBufferSize = m_renderWidth * m_renderHeight;
     m_screenBuffer = new Colour[m_screenBufferSize];
 
     for (int i = 0; i < m_screenBufferSize; ++i)
         m_screenBuffer[i] = Colour();
+
+    // initialise statistics struct
+    m_stats = new threadStats[m_numberOfThreads];
+
+    for (int i = 0; i < m_numberOfThreads; ++i)
+        m_stats[i].raysCast = 0;
 
     return true;
 }
@@ -103,16 +110,11 @@ bool Tracer::loadExampleScene()
     setAmbientLightingColour(Colour(255, 255, 255));
     setAmbientLightingIntensity(0.08);
 
-    // first light
-    Light *light = new Light();
-    light->setPosition(Vector3(-300,400,-100));
-    light->setIntensity(40.0);
-    light->setColour(Colour(255,255,255));
-    addLight(light);
-
+    // fake soft shadows
+    Light *light;
     light = new Light();
-    light->setPosition(Vector3(300,400,-100));
-    light->setIntensity(40.0);
+    light->setPosition(Vector3(200,400,-100));
+    light->setIntensity(80);
     light->setColour(Colour(255,255,255));
     addLight(light);
      
@@ -125,28 +127,49 @@ bool Tracer::loadExampleScene()
     m_camera->setRenderDimensions(m_renderWidth, m_renderHeight);
 
     // red material
-    Material *red = new Material();
-    red->setDiffuseColour(Colour(255,183,182));
-    red->setPhongSpecularity(200);
-    red->setReflectivity(0.4);
-    addMaterial(red);
+    Material *shinyRed = new Material();
+    shinyRed->setDiffuseColour(Colour(255,183,182));
+    shinyRed->setPhongSpecularity(200);
+    shinyRed->setReflectivity(0.4);
+    addMaterial(shinyRed);
 
     // blue material
+    Material *shinyBlue = new Material();
+    shinyBlue->setDiffuseColour(Colour(119,158,247));
+    shinyBlue->setSpecularIntensity(0.5);
+    shinyBlue->setPhongSpecularity(8);
+    shinyBlue->setReflectivity(0.2);
+    addMaterial(shinyBlue);
+
+    // green material
+    Material *lightGreen = new Material();
+    lightGreen->setDiffuseColour(Colour(179,248,203));
+    lightGreen->setSpecularIntensity(0);
+    lightGreen->setPhongSpecularity(0);
+    addMaterial(lightGreen);
+
+    // white material
+    Material *white = new Material();
+    white->setDiffuseColour(Colour(255,255,255));
+    white->setSpecularIntensity(0);
+    white->setPhongSpecularity(0);
+    addMaterial(white);
+
+    // white material
+    Material *red = new Material();
+    red->setDiffuseColour(Colour(255,0,0));
+    red->setSpecularIntensity(0);
+    red->setPhongSpecularity(0);
+    addMaterial(red);
+
+    // white material
     Material *blue = new Material();
-    blue->setDiffuseColour(Colour(119,158,247));
-    blue->setSpecularIntensity(0.5);
-    blue->setPhongSpecularity(8);
-    blue->setReflectivity(0.2);
+    blue->setDiffuseColour(Colour(0,0,255));
+    blue->setSpecularIntensity(0);
+    blue->setPhongSpecularity(0);
     addMaterial(blue);
 
-    // green material
-    Material *green = new Material();
-    green->setDiffuseColour(Colour(179,248,203));
-    green->setSpecularIntensity(0);
-    green->setPhongSpecularity(0);
-    addMaterial(green);
-
-    // green material
+    // mirror material
     Material *mirror = new Material();
     mirror->setDiffuseColour(Colour(255,255,255));
     mirror->setSpecularIntensity(0.1);
@@ -158,14 +181,14 @@ bool Tracer::loadExampleScene()
     Sphere *sphere = new Sphere();
     sphere->setPosition(Vector3(-200,100,0));
     sphere->setRadius(100);
-    sphere->setMaterial(red);
+    sphere->setMaterial(shinyRed);
     addObject(sphere);
 
     // another sphere!
     sphere = new Sphere();
     sphere->setPosition(Vector3(-10,80,0));
     sphere->setRadius(80);
-    sphere->setMaterial(blue);
+    sphere->setMaterial(shinyBlue);
     addObject(sphere);
 
     // another sphere!
@@ -186,7 +209,21 @@ bool Tracer::loadExampleScene()
     Plane *plane = new Plane();
     plane->setNormal(Vector3(0,1,0));
     plane->setPosition(Vector3(0,0,0));
-    plane->setMaterial(green);
+    plane->setMaterial(lightGreen);
+    addObject(plane);
+
+    // rear plane
+    plane = new Plane();
+    plane->setNormal(Vector3(0,0,-1));
+    plane->setPosition(Vector3(0,0,500));
+    plane->setMaterial(red);
+    addObject(plane);
+
+    // left plane
+    plane = new Plane();
+    plane->setNormal(Vector3(1,0,0));
+    plane->setPosition(Vector3(-350,0,0));
+    plane->setMaterial(blue);
     addObject(plane);
 
     // action!
@@ -196,23 +233,23 @@ bool Tracer::loadExampleScene()
 void Tracer::trace()
 {
     // threads
-    thread *traceThreads = new thread[m_threads];
+    thread *traceThreads = new thread[m_numberOfThreads];
 
     // spawn threads
-    for (int threadId = 0; threadId < m_threads; ++threadId) 
+    for (int threadId = 0; threadId < m_numberOfThreads; ++threadId) 
         traceThreads[threadId] = thread(&Tracer::traceImage, this, threadId);
 
     // join threads
-    for (int threadId = 0; threadId < m_threads; ++threadId) 
+    for (int threadId = 0; threadId < m_numberOfThreads; ++threadId) 
         traceThreads[threadId].join();
 
     // done! clean up
     delete [] traceThreads;
 }
 
-void Tracer::traceImage(int threadOffset)
+void Tracer::traceImage(int threadId)
 {
-    for (int screenIndex = threadOffset; screenIndex < m_screenBufferSize; screenIndex += m_threads ) {
+    for (int screenIndex = threadId; screenIndex < m_screenBufferSize; screenIndex += m_numberOfThreads ) {
         // find which pixel this screen cell is for        
         int x = screenIndex % m_renderWidth;
         int y = (screenIndex - x) / m_renderWidth;
@@ -223,8 +260,11 @@ void Tracer::traceImage(int threadOffset)
                 // get our ray from the camera
                 Ray primaryRay = m_camera->getPixelRay(x, y, offsetX, offsetY);
 
+                // increment ray count
+                m_stats[threadId].raysCast++;
+
                 // get the colour of this pixel
-                Colour primaryColour = traceRay(primaryRay);
+                Colour primaryColour = traceRay(threadId, primaryRay);
 
                 // set the colour of this pixel
                 m_screenBuffer[screenIndex] += (primaryColour * 0.25);
@@ -233,7 +273,7 @@ void Tracer::traceImage(int threadOffset)
     }
 }
 
-Colour Tracer::traceRay(Ray ray)
+Colour Tracer::traceRay(int threadId, Ray ray)
 {
     // this will be the colour we return
     Colour rayColour;
@@ -294,14 +334,20 @@ Colour Tracer::traceRay(Ray ray)
                 // now we check it is not in shadow
                 Ray shadowRay(intersection, lightNormal);
 
+                // increment ray count
+                m_stats[threadId].raysCast++;
+
+                // distance to light
+                double distanceToLight = Vector3(intersection, light->getPosition()).magnitude();
+
+                // update this every loop
                 bool inShadow = false;
 
                 // check all objects
                 for (auto obj : m_objects) {
                     pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
 
-                    // TODO: and intersection is between light and object, not behind light
-                    if (intersectionTest.first && intersectionTest.second > 0.0001)
+                    if (intersectionTest.first && intersectionTest.second > 0.0001 && intersectionTest.second < distanceToLight)
                         inShadow = true;
                 }
 
@@ -309,12 +355,15 @@ Colour Tracer::traceRay(Ray ray)
                 if (!inShadow) {
                     // we 'add' the light from the current light to the screen
 
+                    // lambertian reflectance
                     // calculate diffuse lighting
                     rayColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseIntensity() * shadowCheck);
 
                     // normal to camera
-                    Vector3 cameraNormal(intersection, m_camera->getPosition());
-                    cameraNormal.normalise();
+                    // OLD AND SLOW: Vector3 cameraNormal(intersection, m_camera->getPosition());
+                    // OLD AND SLOW: cameraNormal.normalise();
+                    // this optimisation saved around 5% in my test. :)
+                    Vector3 cameraNormal = - ray.getDirection();
 
                     // reflect light normal around surface normal
                     // NOTE: we can just use shadowCheck here because it's 
@@ -348,8 +397,11 @@ Colour Tracer::traceRay(Ray ray)
             // get new ray
             Ray reflectionRay = Ray(intersection, reflectionDirection);
 
+            // increment ray count
+            m_stats[threadId].raysCast++;
+
             // trace ray and add colour we get
-            rayColour += (traceRay(reflectionRay) * objectMaterial->getReflectivity() );
+            rayColour += (traceRay(threadId, reflectionRay) * objectMaterial->getReflectivity() );
         }
 
         // calculate refraction/transmission ray
@@ -460,5 +512,10 @@ void Tracer::writeScreenToBmp(string filename)
 
 long Tracer::getRaycount()
 {
-    return m_rayCount;
+    long output = 0;
+
+    for (int i = 0; i < m_numberOfThreads; ++i)
+        output += m_stats[i].raysCast;
+
+    return output;
 }

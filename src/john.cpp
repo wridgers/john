@@ -2,19 +2,24 @@
 
 using namespace std;
 
-int main() 
+int main(int argc, char **argv) 
 {
     // print stuff
-    cout << "john - v0.1 - a Will Ridgers project\n" << endl;
+    cout << "john - v0.1.1 - a Will Ridgers project\n" << endl;
+
+    // config
+    int renderWidth = 1280;
+    int renderHeight = 720;
 
 	// load tracer, apply some settings
 	Tracer *tracer = new Tracer();
-	tracer->setRenderResolution(1920, 1080);
+	tracer->setRenderResolution(renderWidth, renderHeight);
     tracer->setRenderBackgroundColour(Colour(178, 207, 223));
 
     // guess number of threads to use
     unsigned threads = thread::hardware_concurrency();
     tracer->setNumberOfThreads(threads);
+    cout << "threads: " << threads << endl;
 
     // load stuff
 	tracer->init();
@@ -23,27 +28,21 @@ int main()
     // get time of start
     chrono::high_resolution_clock::time_point traceStart = chrono::high_resolution_clock::now();
     
-    // trace frame
+    // trace!
     tracer->trace();
 
     // get time of stop
     chrono::high_resolution_clock::time_point traceStop = chrono::high_resolution_clock::now();
     unsigned traceMilliseconds = (unsigned)chrono::duration_cast<chrono::milliseconds>(traceStop - traceStart).count();
 
-    // TODO: render stats, % complete, log file
     cout << "trace complete in " << (traceMilliseconds/1000.0) << " seconds" << endl;
-    // cout << "total rays: " << tracer->getRaycount() << endl;
+    cout << "total rays: " << tracer->getRaycount() << endl;
 
     // save screen buffer
 	tracer->writeScreenToBmp("image.bmp");
 
 	// clean up
 	delete tracer;
-
-    // mscv : check for memory leaks
-#if defined _WIN32 || defined _WIN64
-    _CrtDumpMemoryLeaks();
-#endif
 
 	return 0;
 }

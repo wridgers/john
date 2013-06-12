@@ -18,6 +18,11 @@
 #include "types/colour.h"
 #include "types/ray.h"
 
+struct threadStats 
+{
+    long    raysCast;
+};
+
 using namespace std;
 
 class Tracer
@@ -56,7 +61,7 @@ public:
     // trace
     void   trace();
     void   traceImage(int threadOffset);
-    Colour traceRay(Ray ray);
+    Colour traceRay(int threadId, Ray ray);
 
     // save buffer
     void writeScreenToBmp(string filename);
@@ -77,7 +82,7 @@ private:
     double              m_ambientLightingIntensity;
 
     // threading
-   int                  m_threads;
+   int                  m_numberOfThreads;
 
     // screen buffer
     int			        m_screenBufferSize;
@@ -90,7 +95,7 @@ private:
     vector<Object*>     m_objects;
 
     // render stats
-    long                m_rayCount;
+    threadStats*        m_stats;
 };
 
 #endif

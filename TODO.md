@@ -3,7 +3,6 @@ A list of things to do
  - John
   * command line options
   * log file
-  * png output
 
  - Core
   * scene handler
