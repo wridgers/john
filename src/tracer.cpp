@@ -3,7 +3,13 @@
 Tracer::Tracer()
 {
     // some sane defaults
+    setNumberOfThreads(2);
+    setMaxRayDepth(500);
     setRenderResolution(640, 480);
+
+    // default anti aliasing
+    setAntiAliasType(AA_TYPE_SUPERSAMPLE);
+    setAntiAliasQuality(AA_QUALITY_4);
 
     // background colour
     setRenderBackgroundColour(Colour(0, 0, 0));
@@ -44,6 +50,11 @@ void Tracer::setNumberOfThreads(int threads)
     m_numberOfThreads = threads;
 }
 
+void Tracer::setMaxRayDepth(int depth)
+{
+    m_maxRayDepth = depth;
+}
+
 void Tracer::setRenderResolution(int width, int height)
 {
     m_renderWidth   = width;
@@ -53,6 +64,16 @@ void Tracer::setRenderResolution(int width, int height)
 void Tracer::setRenderBackgroundColour(Colour colour)
 {
     m_renderBackgroundColour = colour;
+}
+
+void Tracer::setAntiAliasType(antiAliasType type)
+{
+    m_antiAliasType = type;
+}
+
+void Tracer::setAntiAliasQuality(antiAliasQuality quality)
+{
+    m_antiAliasQuality = quality;
 }
 
 void Tracer::useAmbientLighting(bool enabled)
@@ -109,11 +130,12 @@ bool Tracer::loadExampleScene()
     useAmbientLighting(true);
     setAmbientLightingColour(Colour(255, 255, 255));
     setAmbientLightingIntensity(0.08);
+    setRenderBackgroundColour(Colour(178, 207, 223));
 
     // fake soft shadows
     Light *light;
     light = new Light();
-    light->setPosition(Vector3(200,400,-100));
+    light->setPosition(Vector3(200,290,-100));
     light->setIntensity(80);
     light->setColour(Colour(255,255,255));
     addLight(light);
@@ -172,9 +194,12 @@ bool Tracer::loadExampleScene()
     // mirror material
     Material *mirror = new Material();
     mirror->setDiffuseColour(Colour(255,255,255));
-    mirror->setSpecularIntensity(0.1);
-    mirror->setPhongSpecularity(50);
-    mirror->setReflectivity(0.8);
+    mirror->setAmbientIntensity(0);
+    mirror->setDiffuseIntensity(0);
+    mirror->setSpecularIntensity(0);
+    mirror->setPhongAttenuation(1000);
+    mirror->setPhongSpecularity(1000);
+    mirror->setReflectivity(1);
     addMaterial(mirror);
 
     // sphere
@@ -185,11 +210,13 @@ bool Tracer::loadExampleScene()
     addObject(sphere);
 
     // another sphere!
+    /*
     sphere = new Sphere();
     sphere->setPosition(Vector3(-10,80,0));
     sphere->setRadius(80);
     sphere->setMaterial(shinyBlue);
     addObject(sphere);
+    */
 
     // another sphere!
     sphere = new Sphere();
@@ -205,10 +232,17 @@ bool Tracer::loadExampleScene()
     sphere->setMaterial(mirror);
     addObject(sphere);
 
-    // create plane
+    // bottom plane
     Plane *plane = new Plane();
     plane->setNormal(Vector3(0,1,0));
     plane->setPosition(Vector3(0,0,0));
+    plane->setMaterial(lightGreen);
+    addObject(plane);
+
+    // top plane
+    plane = new Plane();
+    plane->setNormal(Vector3(0,-1,0));
+    plane->setPosition(Vector3(0,300,0));
     plane->setMaterial(lightGreen);
     addObject(plane);
 
@@ -216,7 +250,14 @@ bool Tracer::loadExampleScene()
     plane = new Plane();
     plane->setNormal(Vector3(0,0,-1));
     plane->setPosition(Vector3(0,0,500));
-    plane->setMaterial(red);
+    plane->setMaterial(mirror);
+    addObject(plane);
+
+    // front plane
+    plane = new Plane();
+    plane->setNormal(Vector3(0,0,1));
+    plane->setPosition(Vector3(0,0,-900));
+    plane->setMaterial(mirror);
     addObject(plane);
 
     // left plane
@@ -224,6 +265,13 @@ bool Tracer::loadExampleScene()
     plane->setNormal(Vector3(1,0,0));
     plane->setPosition(Vector3(-350,0,0));
     plane->setMaterial(blue);
+    addObject(plane);
+
+    // right plane
+    plane = new Plane();
+    plane->setNormal(Vector3(-1,0,0));
+    plane->setPosition(Vector3(350,0,0));
+    plane->setMaterial(white);
     addObject(plane);
 
     // action!
@@ -255,25 +303,25 @@ void Tracer::traceImage(int threadId)
         int y = (screenIndex - x) / m_renderWidth;
 
         // anti aliasing
-        for (double offsetX = -0.25; offsetX <= 0.25; offsetX += 0.5) {
-            for (double offsetY = -0.25; offsetY <= 0.25; offsetY += 0.5) {
+        for (double offsetX = -0.375; offsetX <= 0.375; offsetX += 0.25) {
+            for (double offsetY = -0.375; offsetY <= 0.375; offsetY += 0.25) {
                 // get our ray from the camera
-                Ray primaryRay = m_camera->getPixelRay(x, y, offsetX, offsetY);
+                Ray primaryRay = m_camera->getPixelRay(x + offsetX, y + offsetY);
 
                 // increment ray count
                 m_stats[threadId].raysCast++;
 
                 // get the colour of this pixel
-                Colour primaryColour = traceRay(threadId, primaryRay);
+                Colour primaryColour = traceRay(threadId, primaryRay, m_maxRayDepth);
 
                 // set the colour of this pixel
-                m_screenBuffer[screenIndex] += (primaryColour * 0.25);
+                m_screenBuffer[screenIndex] += (primaryColour * 0.0625);
             }
         }
     }
 }
 
-Colour Tracer::traceRay(int threadId, Ray ray)
+Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
 {
     // this will be the colour we return
     Colour rayColour;
@@ -349,6 +397,9 @@ Colour Tracer::traceRay(int threadId, Ray ray)
 
                     if (intersectionTest.first && intersectionTest.second > 0.0001 && intersectionTest.second < distanceToLight)
                         inShadow = true;
+
+                    if (inShadow)
+                        break;
                 }
 
                 // only add light if not in shadow
@@ -389,7 +440,7 @@ Colour Tracer::traceRay(int threadId, Ray ray)
         }
 
         // calculate reflection ray
-        if (objectMaterial->getReflectivity() > 0) {
+        if (objectMaterial->getReflectivity() > 0 && rayDepth > 0) {
             // first, calculation direction of reflection
             // note, the ray direction must be negated
             Vector3 reflectionDirection = (surfaceNormal * surfaceNormal.dot(-ray.getDirection()) * 2) + ray.getDirection();
@@ -401,7 +452,7 @@ Colour Tracer::traceRay(int threadId, Ray ray)
             m_stats[threadId].raysCast++;
 
             // trace ray and add colour we get
-            rayColour += (traceRay(threadId, reflectionRay) * objectMaterial->getReflectivity() );
+            rayColour += (traceRay(threadId, reflectionRay, rayDepth - 1) * objectMaterial->getReflectivity() );
         }
 
         // calculate refraction/transmission ray
@@ -514,6 +565,7 @@ long Tracer::getRaycount()
 {
     long output = 0;
 
+    // add all the raysCast values together
     for (int i = 0; i < m_numberOfThreads; ++i)
         output += m_stats[i].raysCast;
 

@@ -4,7 +4,6 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
-#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -18,10 +17,15 @@
 #include "types/colour.h"
 #include "types/ray.h"
 
+// thread render statistics struct
 struct threadStats 
 {
     long    raysCast;
 };
+
+// render setting enums
+enum antiAliasType { AA_TYPE_NONE, AA_TYPE_SUPERSAMPLE, AA_TYPE_ADAPTIVE, AA_TYPE_STOCHASTIC};
+enum antiAliasQuality { AA_QUALITY_4, AA_QUALITY_16 };
 
 using namespace std;
 
@@ -37,6 +41,10 @@ public:
 
     // render settings 
     void setRenderResolution(int width, int height);
+
+    // anti alias settings
+    void setAntiAliasType(antiAliasType type);
+    void setAntiAliasQuality(antiAliasQuality quality);
 
     // background colour
     void setRenderBackgroundColour(Colour colour);
@@ -61,7 +69,7 @@ public:
     // trace
     void   trace();
     void   traceImage(int threadOffset);
-    Colour traceRay(int threadId, Ray ray);
+    Colour traceRay(int threadId, Ray ray, int rayDepth);
 
     // save buffer
     void writeScreenToBmp(string filename);
@@ -70,8 +78,15 @@ public:
     long getRaycount();
 
 private:
+
+    // threading
+   int                  m_numberOfThreads;
+
     // render settings
     int			        m_renderWidth, m_renderHeight;
+    int                 m_maxRayDepth;
+    antiAliasType       m_antiAliasType;
+    antiAliasQuality    m_antiAliasQuality;
 
     // background
     Colour              m_renderBackgroundColour;
@@ -80,9 +95,6 @@ private:
     bool                m_ambientLightingEnabled;
     Colour              m_ambientLightingColour;
     double              m_ambientLightingIntensity;
-
-    // threading
-   int                  m_numberOfThreads;
 
     // screen buffer
     int			        m_screenBufferSize;

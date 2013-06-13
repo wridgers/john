@@ -14,7 +14,8 @@ int main(int argc, char **argv)
 	// load tracer, apply some settings
 	Tracer *tracer = new Tracer();
 	tracer->setRenderResolution(renderWidth, renderHeight);
-    tracer->setRenderBackgroundColour(Colour(178, 207, 223));
+    tracer->setAntiAliasType(AA_TYPE_SUPERSAMPLE);
+    tracer->setAntiAliasQuality(AA_QUALITY_16);
 
     // guess number of threads to use
     unsigned threads = thread::hardware_concurrency();

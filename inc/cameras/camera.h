@@ -28,7 +28,7 @@ public:
     void    setRenderDimensions(int width, int height);
 
     // get rays
-    Ray     getPixelRay(double pixelX, double pixelY, double offsetX = 0.0, double offsetY = 0.0);
+    Ray     getPixelRay(double pixelX, double pixelY);
 
 private:
     // recalculate direction, aspect, etc, on change

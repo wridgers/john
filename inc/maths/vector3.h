@@ -1,6 +1,7 @@
 #ifndef __VECTOR3_H__
 #define __VECTOR3_H__
 
+#include <assert.h>
 #include <cmath>
 #include <iostream>
 

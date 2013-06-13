@@ -109,6 +109,8 @@ Vector3 Vector3::operator* (const double &rhs)
 
 Vector3 Vector3::operator/ (const double &rhs)
 {
+    assert(rhs != 0);
+
     return Vector3(
         x / rhs,
         y / rhs,
@@ -163,6 +165,8 @@ Vector3& Vector3::operator*= (const double &rhs)
 
 Vector3& Vector3::operator/= (const double &rhs)
 {
+    assert(rhs != 0);
+
     x /= rhs;
     y /= rhs;
     z /= rhs;
@@ -200,6 +204,8 @@ double Vector3::magnitudeSquare()
 void Vector3::normalise()
 {
 	double mag = magnitude();
+
+    assert(mag != 0);
 
 	x /= mag;
 	y /= mag;

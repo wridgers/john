@@ -74,11 +74,11 @@ void Camera::setRenderDimensions(int width, int height)
     recalculate();
 }
 
-Ray Camera::getPixelRay(double pixelX, double pixelY, double offsetX, double offsetY)
+Ray Camera::getPixelRay(double pixelX, double pixelY)
 {
     // direction of ray
-    Vector3 rayDirection = m_direction + m_imagePlaneX*((pixelX+offsetX)/m_renderWidth - 0.5)*m_imagePlaneWidth
-        + m_imagePlaneY*((pixelY+offsetY)/m_renderHeight - 0.5)*m_imagePlaneHeight;
+    Vector3 rayDirection = m_direction + m_imagePlaneX*((pixelX)/m_renderWidth - 0.5)*m_imagePlaneWidth
+        + m_imagePlaneY*((pixelY)/m_renderHeight - 0.5)*m_imagePlaneHeight;
 
     // don't forget to normalise
     rayDirection.normalise();
