@@ -4,7 +4,7 @@ Tracer::Tracer()
 {
     // some sane defaults
     setNumberOfThreads(2);
-    setMaxRayDepth(500);
+    setMaxRayDepth(100);
     setRenderResolution(640, 480);
 
     // default anti aliasing
@@ -153,6 +153,7 @@ bool Tracer::loadExampleScene()
     shinyRed->setDiffuseColour(Colour(255,183,182));
     shinyRed->setPhongSpecularity(200);
     shinyRed->setReflectivity(0.4);
+	shinyRed->setTransparency(0.1);
     addMaterial(shinyRed);
 
     // blue material
@@ -161,6 +162,7 @@ bool Tracer::loadExampleScene()
     shinyBlue->setSpecularIntensity(0.5);
     shinyBlue->setPhongSpecularity(8);
     shinyBlue->setReflectivity(0.2);
+	shinyBlue->setTransparency(0.1);
     addMaterial(shinyBlue);
 
     // green material
@@ -168,6 +170,7 @@ bool Tracer::loadExampleScene()
     lightGreen->setDiffuseColour(Colour(179,248,203));
     lightGreen->setSpecularIntensity(0);
     lightGreen->setPhongSpecularity(0);
+	lightGreen->setTransparency(0.1);
     addMaterial(lightGreen);
 
     // white material
@@ -175,6 +178,7 @@ bool Tracer::loadExampleScene()
     white->setDiffuseColour(Colour(255,255,255));
     white->setSpecularIntensity(0);
     white->setPhongSpecularity(0);
+	white->setTransparency(0.1);
     addMaterial(white);
 
     // white material
@@ -182,6 +186,7 @@ bool Tracer::loadExampleScene()
     red->setDiffuseColour(Colour(255,0,0));
     red->setSpecularIntensity(0);
     red->setPhongSpecularity(0);
+	red->setTransparency(0.1);
     addMaterial(red);
 
     // white material
@@ -189,6 +194,7 @@ bool Tracer::loadExampleScene()
     blue->setDiffuseColour(Colour(0,0,255));
     blue->setSpecularIntensity(0);
     blue->setPhongSpecularity(0);
+	blue->setTransparency(0.1);
     addMaterial(blue);
 
     // mirror material
@@ -199,7 +205,8 @@ bool Tracer::loadExampleScene()
     mirror->setSpecularIntensity(0);
     mirror->setPhongAttenuation(1000);
     mirror->setPhongSpecularity(1000);
-    mirror->setReflectivity(1);
+    mirror->setReflectivity(0.0);
+	mirror->setTransparency(0.7);
     addMaterial(mirror);
 
     // sphere
@@ -232,6 +239,19 @@ bool Tracer::loadExampleScene()
     sphere->setMaterial(mirror);
     addObject(sphere);
 
+	sphere = new Sphere();
+    sphere->setPosition(Vector3(-80,60,-125));
+    sphere->setRadius(58);
+    sphere->setMaterial(mirror);
+    addObject(sphere);
+
+    // another sphere!
+    sphere = new Sphere();
+    sphere->setPosition(Vector3(-180,40,-125));
+    sphere->setRadius(38);
+    sphere->setMaterial(mirror);
+    addObject(sphere);
+
     // bottom plane
     Plane *plane = new Plane();
     plane->setNormal(Vector3(0,1,0));
@@ -250,14 +270,14 @@ bool Tracer::loadExampleScene()
     plane = new Plane();
     plane->setNormal(Vector3(0,0,-1));
     plane->setPosition(Vector3(0,0,500));
-    plane->setMaterial(mirror);
+    plane->setMaterial(red);
     addObject(plane);
 
     // front plane
     plane = new Plane();
     plane->setNormal(Vector3(0,0,1));
     plane->setPosition(Vector3(0,0,-900));
-    plane->setMaterial(mirror);
+    plane->setMaterial(lightGreen);
     addObject(plane);
 
     // left plane
@@ -271,7 +291,7 @@ bool Tracer::loadExampleScene()
     plane = new Plane();
     plane->setNormal(Vector3(-1,0,0));
     plane->setPosition(Vector3(350,0,0));
-    plane->setMaterial(white);
+    plane->setMaterial(red);
     addObject(plane);
 
     // action!
@@ -456,7 +476,21 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
         }
 
         // calculate refraction/transmission ray
-        // WIP ;)
+		// for now ignore indicies of refraction of the media, we're just looking at light going through.
+        if(objectMaterial->getTransparency() > 0 && rayDepth > 0) {
+			//get the ratio of inidicies of refraction
+			double n = 1/3;
+			double cosI = surfaceNormal.dot(ray.getDirection());
+			double sinT2 = n * n * (1.0 - (cosI * cosI));
+			if(sinT2 > 1.0) {
+				//do nothing, angle of incidence such that no transmission occurs
+			}else{
+				//get the new ray
+				Vector3 transmissionVector = (ray.getDirection() * n) - (surfaceNormal * (n + sqrt(1.0 - sinT2)));
+				Ray transmissionRay = Ray(intersection, transmissionVector);
+				rayColour += (traceRay(threadId, transmissionRay, rayDepth - 1) * objectMaterial -> getTransparency());
+			}
+		}
 
         // now we've done all the calculations, return what we got
         return rayColour;

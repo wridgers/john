@@ -3,6 +3,6 @@
 #include <thread>
 
 // visual leak detector
-#include <vld.h>
+//#include <vld.h>
 
 #include "tracer.h"
