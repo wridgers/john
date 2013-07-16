@@ -33,6 +33,10 @@ public:
     void    setReflectivity(double reflectivity);
     double  getReflectivity();
 
+	// transmission
+	void setTransparency(double transparency);
+	double getTransparency();
+
 private:
     // ambient
     double  m_ambientIntensity;
@@ -48,6 +52,9 @@ private:
 
     // reflection
     double  m_reflectivity;
+
+	// transmission
+	double m_transparency;
 };
 
 #endif
