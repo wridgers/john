@@ -8,8 +8,8 @@ int main(int argc, char **argv)
     cout << "john - v0.1.1 - a Will Ridgers project\n" << endl;
 
     // config
-    int renderWidth = 1280;
-    int renderHeight = 720;
+    int renderWidth = 1920;
+    int renderHeight = 1080;
 
 	// load tracer, apply some settings
 	Tracer *tracer = new Tracer();
