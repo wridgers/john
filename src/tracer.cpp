@@ -4,7 +4,7 @@ Tracer::Tracer()
 {
     // some sane defaults
     setNumberOfThreads(2);
-    setMaxRayDepth(500);
+    setMaxRayDepth(100);
     setRenderResolution(640, 480);
 
     // default anti aliasing
@@ -103,6 +103,7 @@ bool Tracer::init()
     // initialise statistics struct
     m_stats = new threadStats[m_numberOfThreads];
 
+    // stats are fun!
     for (int i = 0; i < m_numberOfThreads; ++i)
         m_stats[i].raysCast = 0;
 
@@ -126,19 +127,30 @@ void Tracer::addObject(Object* object)
 
 bool Tracer::loadExampleScene()
 {
-    // render settings
+    /////////////////////
+    // render settings //
+    /////////////////////
+    
     useAmbientLighting(true);
     setAmbientLightingColour(Colour(255, 255, 255));
     setAmbientLightingIntensity(0.08);
     setRenderBackgroundColour(Colour(178, 207, 223));
 
-    // fake soft shadows
+    ///////////////////
+    // light sources //
+    ///////////////////
+
+    // a single light source
     Light *light;
     light = new Light();
-    light->setPosition(Vector3(200,290,-100));
+    light->setPosition(Vector3(200, 290, -300));
     light->setIntensity(80);
-    light->setColour(Colour(255,255,255));
+    light->setColour(Colour(255, 255, 255));
     addLight(light);
+
+    ////////////
+    // camera //
+    ////////////
      
     // camera
     m_camera = new Camera();
@@ -148,12 +160,15 @@ bool Tracer::loadExampleScene()
     m_camera->setHorizontalFOV(60);
     m_camera->setRenderDimensions(m_renderWidth, m_renderHeight);
 
+    ///////////////
+    // materials //
+    ///////////////
+
     // red material
-    Material *shinyRed = new Material();
-    shinyRed->setDiffuseColour(Colour(255,183,182));
-    shinyRed->setPhongSpecularity(200);
-    shinyRed->setReflectivity(0.4);
-    addMaterial(shinyRed);
+    Material *sphereRefractionMaterial = new Material();
+    sphereRefractionMaterial->setDiffuseColour(Colour(255,183,182));
+    sphereRefractionMaterial->setOpacity(1.0);
+    addMaterial(sphereRefractionMaterial);
 
     // blue material
     Material *shinyBlue = new Material();
@@ -177,60 +192,52 @@ bool Tracer::loadExampleScene()
     white->setPhongSpecularity(0);
     addMaterial(white);
 
-    // white material
+    // red material
     Material *red = new Material();
     red->setDiffuseColour(Colour(255,0,0));
     red->setSpecularIntensity(0);
     red->setPhongSpecularity(0);
     addMaterial(red);
 
-    // white material
+    // blue material
     Material *blue = new Material();
     blue->setDiffuseColour(Colour(0,0,255));
     blue->setSpecularIntensity(0);
     blue->setPhongSpecularity(0);
     addMaterial(blue);
 
-    // mirror material
-    Material *mirror = new Material();
-    mirror->setDiffuseColour(Colour(255,255,255));
-    mirror->setAmbientIntensity(0);
-    mirror->setDiffuseIntensity(0);
-    mirror->setSpecularIntensity(0);
-    mirror->setPhongAttenuation(1000);
-    mirror->setPhongSpecularity(1000);
-    mirror->setReflectivity(1);
-    addMaterial(mirror);
+    // green material
+    Material *green = new Material();
+    green->setDiffuseColour(Colour(0,255,0));
+    green->setSpecularIntensity(0);
+    green->setPhongSpecularity(0);
+    addMaterial(green);
+
+    /////////////
+    // spheres //
+    /////////////
 
     // sphere
     Sphere *sphere = new Sphere();
-    sphere->setPosition(Vector3(-200,100,0));
+    sphere->setPosition(Vector3(-100,100,-100));
     sphere->setRadius(100);
-    sphere->setMaterial(shinyRed);
+    sphere->setMaterial(sphereRefractionMaterial);
     addObject(sphere);
 
-    // another sphere!
-    /*
-    sphere = new Sphere();
-    sphere->setPosition(Vector3(-10,80,0));
-    sphere->setRadius(80);
-    sphere->setMaterial(shinyBlue);
-    addObject(sphere);
-    */
+    // add grid of spheres
+    for (int sphereX = -5; sphereX <= 5; sphereX += 2) {
+        for (int sphereY = 0; sphereY <= 5; sphereY++) {
+            sphere = new Sphere();
+            sphere->setPosition(Vector3(sphereX * 50, sphereY * 50, 150));
+            sphere->setRadius(10);
+            sphere->setMaterial(green);
+            addObject(sphere);
+        }
+    }
 
-    // another sphere!
-    sphere = new Sphere();
-    sphere->setPosition(Vector3(-80,60,-125));
-    sphere->setRadius(60);
-    sphere->setMaterial(mirror);
-    addObject(sphere);
-
-    // another sphere!
-    sphere = new Sphere();
-    sphere->setPosition(Vector3(-180,40,-125));
-    sphere->setRadius(40);
-    sphere->setMaterial(mirror);
-    addObject(sphere);
+    ////////////
+    // planes //
+    ////////////
 
     // bottom plane
     Plane *plane = new Plane();
@@ -250,14 +257,14 @@ bool Tracer::loadExampleScene()
     plane = new Plane();
     plane->setNormal(Vector3(0,0,-1));
     plane->setPosition(Vector3(0,0,500));
-    plane->setMaterial(mirror);
+    plane->setMaterial(red);
     addObject(plane);
 
     // front plane
     plane = new Plane();
     plane->setNormal(Vector3(0,0,1));
     plane->setPosition(Vector3(0,0,-900));
-    plane->setMaterial(mirror);
+    plane->setMaterial(lightGreen);
     addObject(plane);
 
     // left plane
@@ -271,7 +278,7 @@ bool Tracer::loadExampleScene()
     plane = new Plane();
     plane->setNormal(Vector3(-1,0,0));
     plane->setPosition(Vector3(350,0,0));
-    plane->setMaterial(white);
+    plane->setMaterial(red);
     addObject(plane);
 
     // action!
@@ -285,7 +292,7 @@ void Tracer::trace()
 
     // spawn threads
     for (int threadId = 0; threadId < m_numberOfThreads; ++threadId) 
-        traceThreads[threadId] = thread(&Tracer::traceImage, this, threadId);
+        traceThreads[threadId] = thread(&Tracer::traceThread, this, threadId);
 
     // join threads
     for (int threadId = 0; threadId < m_numberOfThreads; ++threadId) 
@@ -295,7 +302,7 @@ void Tracer::trace()
     delete [] traceThreads;
 }
 
-void Tracer::traceImage(int threadId)
+void Tracer::traceThread(int threadId)
 {
     for (int screenIndex = threadId; screenIndex < m_screenBufferSize; screenIndex += m_numberOfThreads ) {
         // find which pixel this screen cell is for        
@@ -439,33 +446,58 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
             }
         }
 
-        // calculate reflection ray
-        if (objectMaterial->getReflectivity() > 0 && rayDepth > 0) {
-            // first, calculation direction of reflection
-            // note, the ray direction must be negated
-            Vector3 reflectionDirection = (surfaceNormal * surfaceNormal.dot(-ray.getDirection()) * 2) + ray.getDirection();
+        // only do reflection and/or transmission if we haven't hit a ray limit
+        if (rayDepth > 0) {
 
-            // get new ray
-            Ray reflectionRay = Ray(intersection, reflectionDirection);
+            // calculate reflection ray
+            if (objectMaterial->getReflectivity() > 0) {
+                // first, calculation direction of reflection
+                // note, the ray direction must be negated
+                Vector3 reflectionDirection = (surfaceNormal * surfaceNormal.dot(-ray.getDirection()) * 2) + ray.getDirection();
 
-            // increment ray count
-            m_stats[threadId].raysCast++;
+                // get new ray
+                Ray reflectionRay = Ray(intersection, reflectionDirection);
 
-            // trace ray and add colour we get
-            rayColour += (traceRay(threadId, reflectionRay, rayDepth - 1) * objectMaterial->getReflectivity() );
+                // increment ray count
+                m_stats[threadId].raysCast++;
+
+                // trace ray and add colour we get
+                rayColour += (traceRay(threadId, reflectionRay, rayDepth - 1) * objectMaterial->getReflectivity() );
+            }
+
+            // calculate transmission ray
+            if(objectMaterial->getOpacity() > 0.0) {
+                // for now ignore indicies of refraction of the media, we're just looking at light going through.
+
+                // get the ratio of indicies of refraction
+                double n = 1.0/1.33;
+                double surfaceNormalDotRayDirection = surfaceNormal.dot(ray.getDirection());
+                double sinT2 = n * n * (1.0 - (surfaceNormalDotRayDirection * surfaceNormalDotRayDirection));
+
+                // does transmission occur?
+                if(sinT2 <= 1.0) {
+                    // calculate direction of transmission
+                    Vector3 transmissionDirection = (ray.getDirection() * n) - (surfaceNormal * (n + sqrt(1.0 - sinT2)));
+
+                    // get new ray
+                    Ray transmissionRay = Ray(intersection, transmissionDirection);
+
+                    // increment ray count
+                    m_stats[threadId].raysCast++;
+
+                    // trace ray and add colour we get
+                    rayColour += (traceRay(threadId, transmissionRay, rayDepth - 1) * 2.0); // objectMaterial->getOpacity());
+                }
+            }
         }
-
-        // calculate refraction/transmission ray
-        // WIP ;)
 
         // now we've done all the calculations, return what we got
         return rayColour;
     } 
 
-    // ray does not intersect any objects     // hence ray must extend into the background of scene
+    // ray does not intersect any objects hence ray must extend into the background of scene
     return m_renderBackgroundColour;
 }
-
 
 void Tracer::writeScreenToBmp(string filename)
 {

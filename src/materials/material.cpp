@@ -87,3 +87,13 @@ double Material::getReflectivity()
 {
     return m_reflectivity;
 }
+
+void Material::setOpacity(double transparency)
+{
+	m_opacity = transparency;
+}
+
+double Material::getOpacity()
+{
+	return m_opacity;
+}

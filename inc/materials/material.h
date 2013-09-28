@@ -33,6 +33,14 @@ public:
     void    setReflectivity(double reflectivity);
     double  getReflectivity();
 
+	// transmission
+	void    setOpacity(double opacity);
+	double  getOpacity();
+
+    // refractive index
+    void    setRefractiveIndex(double index);
+    double  getRefractiveIndex();
+
 private:
     // ambient
     double  m_ambientIntensity;
@@ -48,6 +56,10 @@ private:
 
     // reflection
     double  m_reflectivity;
+
+	// transmission
+	double m_opacity;
+    double m_refractiveIndex;
 };
 
 #endif

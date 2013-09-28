@@ -68,7 +68,7 @@ public:
 
     // trace
     void   trace();
-    void   traceImage(int threadOffset);
+    void   traceThread(int threadOffset);
     Colour traceRay(int threadId, Ray ray, int rayDepth);
 
     // save buffer

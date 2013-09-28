@@ -9,6 +9,7 @@ Sphere::Sphere()
 Sphere::Sphere(Vector3 position, double radius)
     : m_position(position), m_radius(radius)
 {
+
 }
 
 Sphere::~Sphere()
