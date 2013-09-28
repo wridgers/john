@@ -2,31 +2,35 @@
 
 solution "john"
     -- Release first so it is the default option
-	configurations { "Release", "Debug" }
-	platforms { "x32", "x64" }
-   
-	buildflags = { "fatal-warnings" }
-   
+	configurations { "release", "debug" }
+	platforms { "x64" }
+
 	location "build"
-	targetdir "bin"
    
-	configuration { "Debug" }
-		defines { "DEBUG" }
-		flags { "Symbols" }
-            targetdir ( "bin/debug" )
- 
-	configuration { "Release" }
-		defines { "NDEBUG" }
-		flags { "Optimize" }
-		targetdir ( "bin/release" )
-   
+	buildflags = { "-Wall", "-pedantic" }
+
 	project "john"
 		kind "ConsoleApp"
 		language "C++"
 		files { "src/**", "inc/**" }
-	    includedirs { "./inc" }
 
--- A nice cleanup
+    includedirs { "./inc" }
+   
+    configuration { "debug" }
+      defines { "DEBUG" }
+      flags { "Symbols" }
+      targetdir "bin/debug"
+   
+    configuration { "release" }
+      defines { "NDEBUG" }
+      flags { "Optimize" }
+      targetdir "bin/release"
+
+    configuration "macosx"
+      linkoptions { "-std=c++11", "-stdlib=libc++" }
+      buildoptions { "-std=c++11", "-stdlib=libc++" }
+
+-- a nice cleanup
 if _ACTION == "clean" then
   os.rmdir("bin")
   os.rmdir("build")
