@@ -1,7 +1,7 @@
 -- john solution.
 
 solution "john"
-    -- Release first so it is the default option
+  -- Release first so it is the default option
 	configurations { "release", "debug" }
 	platforms { "x64" }
 
