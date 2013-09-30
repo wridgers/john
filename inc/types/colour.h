@@ -5,17 +5,20 @@
 
 class Colour
 {
-public:
-	Colour();
-	Colour(int r, int g, int b);
-	Colour(double r, double g, double b);
-	~Colour();
+  public:
+    Colour();
+    Colour(int r, int g, int b);
+    Colour(double r, double g, double b);
+    
+    // TODO: create colour from array/vector of colours (arithmetic average)
+
+    ~Colour();
 
     // public information
-	double m_red, m_green, m_blue;
+    double m_red, m_green, m_blue;
 
     // operators
-	Colour  operator*  (const double &rhs);
+    Colour  operator*  (const double &rhs);
     Colour& operator+= (const Colour &rhs);
     Colour& operator+= (const double &rhs);
 

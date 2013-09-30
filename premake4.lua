@@ -2,17 +2,17 @@
 
 solution "john"
   -- Release first so it is the default option
-	configurations { "release", "debug" }
-	platforms { "x64" }
+  configurations { "release", "debug" }
+  platforms { "x64" }
 
-	location "build"
+  location "build"
    
-	buildflags = { "-Wall", "-pedantic" }
+  buildflags = { "-Wall", "-pedantic" }
 
-	project "john"
-		kind "ConsoleApp"
-		language "C++"
-		files { "src/**", "inc/**" }
+  project "john"
+    kind "ConsoleApp"
+    language "C++"
+    files { "src/**", "inc/**" }
 
     includedirs { "./inc" }
    

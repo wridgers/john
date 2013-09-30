@@ -25,7 +25,7 @@ struct threadStats
 
 // render setting enums
 enum antiAliasType { AA_TYPE_NONE, AA_TYPE_SUPERSAMPLE, AA_TYPE_ADAPTIVE, AA_TYPE_STOCHASTIC};
-enum antiAliasQuality { AA_QUALITY_4, AA_QUALITY_16 };
+enum antiAliasQuality { AA_QUALITY_1, AA_QUALITY_4, AA_QUALITY_16 };
 
 using namespace std;
 
@@ -83,7 +83,7 @@ private:
    int                  m_numberOfThreads;
 
     // render settings
-    int			        m_renderWidth, m_renderHeight;
+    int                 m_renderWidth, m_renderHeight;
     int                 m_maxRayDepth;
     antiAliasType       m_antiAliasType;
     antiAliasQuality    m_antiAliasQuality;
@@ -97,7 +97,7 @@ private:
     double              m_ambientLightingIntensity;
 
     // screen buffer
-    int			        m_screenBufferSize;
+    int                 m_screenBufferSize;
     Colour*             m_screenBuffer;
 
     // scene objects
