@@ -9,18 +9,27 @@ class Colour
     Colour();
     Colour(int r, int g, int b);
     Colour(double r, double g, double b);
-    
+
     // TODO: create colour from array/vector of colours (arithmetic average)
+    // TODO: finish operators
 
     ~Colour();
 
     // public information
     double m_red, m_green, m_blue;
 
-    // operators
-    Colour  operator*  (const double &rhs);
+    // assignment operator
+
+    // binary arithmetic operators
+    Colour  operator+ (const Colour &rhs);
+
+    Colour  operator* (const double &rhs);
+
+    // compound assignment operators
     Colour& operator+= (const Colour &rhs);
     Colour& operator+= (const double &rhs);
+
+    // comparison operators
 
     // for image output
     int getRedRGB();
