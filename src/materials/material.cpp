@@ -11,6 +11,9 @@ Material::Material()
 
     m_phongAttenuation = 0.5;
     m_phongSpecularity = 5;
+
+    m_opacity = 0.0;
+    m_refractiveIndex = 1.0;
 }
 
 Material::~Material()

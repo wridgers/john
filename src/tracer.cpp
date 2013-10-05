@@ -143,7 +143,7 @@ bool Tracer::loadExampleScene()
   // a single light source
   Light *light;
   light = new Light();
-  light->setPosition(Vector3(200, 290, -300));
+  light->setPosition(Vector3(0, 299, -200));
   light->setIntensity(80);
   light->setColour(Colour(255, 255, 255));
   addLight(light);
@@ -155,7 +155,7 @@ bool Tracer::loadExampleScene()
   // camera
   m_camera = new Camera();
   m_camera->setPosition(Vector3(0, 150, -800));
-  m_camera->setTarget(Vector3(0, 50, 0));
+  m_camera->setTarget(Vector3(0, 150, 0));
   m_camera->setUpDirection(Vector3(0, -1, 0));
   m_camera->setHorizontalFOV(60);
   m_camera->setRenderDimensions(m_renderWidth, m_renderHeight);
@@ -164,33 +164,18 @@ bool Tracer::loadExampleScene()
   // materials //
   ///////////////
 
-  // red material
-  Material *sphereRefractionMaterial = new Material();
-  sphereRefractionMaterial->setDiffuseColour(Colour(255,183,182));
-  sphereRefractionMaterial->setOpacity(0.5);
-  addMaterial(sphereRefractionMaterial);
-
-  // blue material
-  Material *shinyBlue = new Material();
-  shinyBlue->setDiffuseColour(Colour(119,158,247));
-  shinyBlue->setSpecularIntensity(0.5);
-  shinyBlue->setPhongSpecularity(8);
-  shinyBlue->setReflectivity(0.2);
-  addMaterial(shinyBlue);
-
-  // green material
-  Material *lightGreen = new Material();
-  lightGreen->setDiffuseColour(Colour(179,248,203));
-  lightGreen->setSpecularIntensity(0);
-  lightGreen->setPhongSpecularity(0);
-  addMaterial(lightGreen);
-
   // white material
   Material *white = new Material();
   white->setDiffuseColour(Colour(255,255,255));
   white->setSpecularIntensity(0);
   white->setPhongSpecularity(0);
   addMaterial(white);
+
+  // transparent material
+  Material *refraction = new Material();
+  refraction->setDiffuseColour(Colour(255,183,182));
+  refraction->setOpacity(1.0);
+  addMaterial(refraction);
 
   // red material
   Material *red = new Material();
@@ -206,34 +191,23 @@ bool Tracer::loadExampleScene()
   blue->setPhongSpecularity(0);
   addMaterial(blue);
 
-  // green material
-  Material *green = new Material();
-  green->setDiffuseColour(Colour(0,255,0));
-  green->setSpecularIntensity(0);
-  green->setPhongSpecularity(0);
-  addMaterial(green);
-
   /////////////
   // spheres //
   /////////////
 
-  // sphere
+  // left sphere
   Sphere *sphere = new Sphere();
-  sphere->setPosition(Vector3(-100,100,-100));
+  sphere->setPosition(Vector3(-100, 100, 50));
   sphere->setRadius(100);
-  sphere->setMaterial(sphereRefractionMaterial);
+  sphere->setMaterial(white);
   addObject(sphere);
 
-  // add grid of spheres
-  for (int sphereX = -5; sphereX <= 5; sphereX += 2) {
-    for (int sphereY = 0; sphereY <= 5; sphereY++) {
-      sphere = new Sphere();
-      sphere->setPosition(Vector3(sphereX * 50, sphereY * 50, 450));
-      sphere->setRadius(10);
-      sphere->setMaterial(green);
-      addObject(sphere);
-    }
-  }
+  // right sphere
+  sphere = new Sphere();
+  sphere->setPosition(Vector3(100, 70, -100));
+  sphere->setRadius(70);
+  sphere->setMaterial(refraction);
+  addObject(sphere);
 
   ////////////
   // planes //
@@ -241,43 +215,36 @@ bool Tracer::loadExampleScene()
 
   // bottom plane
   Plane *plane = new Plane();
-  plane->setNormal(Vector3(0,1,0));
-  plane->setPosition(Vector3(0,0,0));
-  plane->setMaterial(lightGreen);
+  plane->setNormal(Vector3(0, 1, 0));
+  plane->setPosition(Vector3(0, 0, 0));
+  plane->setMaterial(white);
   addObject(plane);
 
   // top plane
   plane = new Plane();
-  plane->setNormal(Vector3(0,-1,0));
-  plane->setPosition(Vector3(0,300,0));
-  plane->setMaterial(lightGreen);
+  plane->setNormal(Vector3(0, -1, 0));
+  plane->setPosition(Vector3(0, 400, 0));
+  plane->setMaterial(white);
   addObject(plane);
 
   // rear plane
   plane = new Plane();
-  plane->setNormal(Vector3(0,0,-1));
-  plane->setPosition(Vector3(0,0,500));
-  plane->setMaterial(red);
-  addObject(plane);
-
-  // front plane
-  plane = new Plane();
-  plane->setNormal(Vector3(0,0,1));
-  plane->setPosition(Vector3(0,0,-900));
-  plane->setMaterial(lightGreen);
+  plane->setNormal(Vector3(0, 0, -1));
+  plane->setPosition(Vector3(0, 0, 500));
+  plane->setMaterial(white);
   addObject(plane);
 
   // left plane
   plane = new Plane();
-  plane->setNormal(Vector3(1,0,0));
-  plane->setPosition(Vector3(-350,0,0));
+  plane->setNormal(Vector3(1, 0, 0));
+  plane->setPosition(Vector3(-350, 0, 0));
   plane->setMaterial(blue);
   addObject(plane);
 
   // right plane
   plane = new Plane();
-  plane->setNormal(Vector3(-1,0,0));
-  plane->setPosition(Vector3(350,0,0));
+  plane->setNormal(Vector3(-1, 0, 0));
+  plane->setPosition(Vector3(350, 0, 0));
   plane->setMaterial(red);
   addObject(plane);
 
@@ -324,7 +291,7 @@ void Tracer::traceThread(int threadId)
     double rayContrib;
 
     // this is to what degree we randomly jitter the ray
-    double jitter;
+    // double jitter;
 
     // precalculated values for anti aliasing
     switch(m_antiAliasQuality) {
@@ -527,12 +494,14 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
         // get the ratio of indices of refraction
         double refractiveIndexRatio = 1.0/1.03;
         double surfaceNormalDotRayDirection = surfaceNormal.dot(ray.getDirection());
-        double sinT2 = refractiveIndexRatio * refractiveIndexRatio * (1.0 - (surfaceNormalDotRayDirection * surfaceNormalDotRayDirection));
+        double transmissionCheck = refractiveIndexRatio * refractiveIndexRatio * (1.0 - (surfaceNormalDotRayDirection * surfaceNormalDotRayDirection));
+        
+        // TODO: what if the ray is exiting the object?
 
         // does transmission occur?
-        if (sinT2 <= 1.0) {
+        if (transmissionCheck <= 1.0) {
           // calculate direction of transmission
-          Vector3 transmissionDirection = (ray.getDirection() * refractiveIndexRatio) - (surfaceNormal * (refractiveIndexRatio + sqrt(1.0 - sinT2)));
+          Vector3 transmissionDirection = (ray.getDirection() * refractiveIndexRatio) - (surfaceNormal * (refractiveIndexRatio + sqrt(1.0 - transmissionCheck)));
 
           // get new ray
           Ray transmissionRay = Ray(intersection, transmissionDirection);
