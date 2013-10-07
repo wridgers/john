@@ -3,6 +3,9 @@
 
 #include <assert.h>
 #include <iostream>
+#include <vector>
+
+using namespace std;
 
 class Colour
 {
@@ -10,11 +13,7 @@ class Colour
     Colour();
     Colour(int r, int g, int b);
     Colour(double r, double g, double b);
-
-    // TODO: create colour from array/vector of colours (arithmetic average)
-    Colour(Colour *colours);
-
-    // TODO: finish operators
+    Colour(vector<Colour*> colours);
 
     ~Colour();
 

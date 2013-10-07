@@ -20,8 +20,29 @@ Colour::Colour(double r, double g, double b) {
   m_blue    = b;
 }
 
-Colour::Colour(Colour *colours) {
+// TODO: this function is probably really slow. I need to lookup the size of
+// the vector in a smart way, but I'm currently on the train and have no
+// documentation with me (nor internet access). Also it'd be faster to have a
+// vector of references as opposed to actual objects. I should probably add
+// another constructor that lets you pass an array of pointers too.
+Colour::Colour(vector<Colour*> colours) {
+  m_red     = 0.0;
+  m_green   = 0.0;
+  m_blue    = 0.0;
 
+  int total = 0;
+
+  for (auto colour : colours) {
+    m_red   += colour->m_red;
+    m_green += colour->m_green;
+    m_blue  += colour->m_blue;
+
+    total++;
+  }
+
+  m_red   /= total; 
+  m_green /= total; 
+  m_blue  /= total; 
 }
 
 Colour::~Colour()
