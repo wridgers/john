@@ -16,8 +16,8 @@ int main(int argc, char **argv)
   tracer->setRenderResolution(renderWidth, renderHeight);
 
   // quality
-  tracer->setAntiAliasType(AA_TYPE_NONE);
-  tracer->setAntiAliasQuality(AA_QUALITY_1);
+  tracer->setAntiAliasType(AA_TYPE_SUPERSAMPLE);
+  tracer->setAntiAliasQuality(AA_QUALITY_16);
 
   // guess number of threads to use
   unsigned threads = thread::hardware_concurrency();
