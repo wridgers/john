@@ -7,13 +7,13 @@ Vector3::Vector3() :
 }
 
 Vector3::Vector3(int a, int b, int c) :
-	x((double)a), y((double)b), z((double)c) 
+	x((double)a), y((double)b), z((double)c)
 {
 
 }
 
 Vector3::Vector3(double a, double b, double c) :
-	x(a), y(b), z(c) 
+	x(a), y(b), z(c)
 {
 
 }
@@ -205,7 +205,7 @@ void Vector3::normalise()
 {
 	double mag = magnitude();
 
-    assert(mag != 0);
+  assert(mag != 0);
 
 	x /= mag;
 	y /= mag;

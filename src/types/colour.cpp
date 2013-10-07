@@ -20,9 +20,27 @@ Colour::Colour(double r, double g, double b) {
   m_blue    = b;
 }
 
+Colour::Colour(Colour *colours) {
+
+}
+
 Colour::~Colour()
 {
 
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+Colour Colour::operator= (const Colour &rhs)
+{
+  if (this == &rhs)
+    return *this;
+
+  m_red = rhs.m_red;
+  m_green = rhs.m_green;
+  m_blue = rhs.m_blue;
+
+  return *this;
 }
 
 Colour Colour::operator+ (const Colour &rhs)
@@ -34,12 +52,68 @@ Colour Colour::operator+ (const Colour &rhs)
   );
 }
 
+Colour Colour::operator+ (const double &rhs)
+{
+  return Colour(
+    m_red     + rhs,
+    m_green   + rhs,
+    m_blue    + rhs
+  );
+}
+
+Colour Colour::operator+ ()
+{
+  return Colour(
+    m_red,
+    m_green,
+    m_blue 
+  );
+}
+
+Colour Colour::operator- (const Colour &rhs)
+{
+  return Colour(
+    m_red     - rhs.m_red,
+    m_green   - rhs.m_green,
+    m_blue    - rhs.m_blue
+  );
+}
+
+Colour Colour::operator- (const double &rhs)
+{
+  return Colour(
+    m_red     - rhs,
+    m_green   - rhs,
+    m_blue    - rhs
+  );
+}
+
+Colour Colour::operator- ()
+{
+  return Colour(
+    - m_red,
+    - m_green,
+    - m_blue 
+  );
+}
+
 Colour Colour::operator* (const double &rhs)
 {
   return Colour(
     m_red     * rhs,
     m_green   * rhs,
     m_blue    * rhs
+  );
+}
+
+Colour Colour::operator/ (const double &rhs)
+{
+  assert(rhs != 0);
+
+  return Colour(
+    m_red     / rhs,
+    m_green   / rhs,
+    m_blue    / rhs
   );
 }
 
@@ -57,6 +131,44 @@ Colour& Colour::operator+= (const double &rhs)
   m_red     += rhs;
   m_green   += rhs;
   m_blue    += rhs;
+
+  return *this;
+}
+
+Colour& Colour::operator-= (const Colour &rhs)
+{
+  m_red     -= rhs.m_red;
+  m_green   -= rhs.m_green;
+  m_blue    -= rhs.m_blue;
+
+  return *this;
+}
+
+Colour& Colour::operator-= (const double &rhs)
+{
+  m_red     -= rhs;
+  m_green   -= rhs;
+  m_blue    -= rhs;
+
+  return *this;
+}
+
+Colour& Colour::operator*= (const double &rhs)
+{
+  m_red     *= rhs;
+  m_green   *= rhs;
+  m_blue    *= rhs;
+
+  return *this;
+}
+
+Colour& Colour::operator/= (const double &rhs)
+{
+  assert(rhs != 0);
+
+  m_red     /= rhs;
+  m_green   /= rhs;
+  m_blue    /= rhs;
 
   return *this;
 }

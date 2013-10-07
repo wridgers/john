@@ -258,11 +258,11 @@ void Tracer::trace()
   thread *traceThreads = new thread[m_numberOfThreads];
 
   // spawn threads
-  for (int threadId = 0; threadId < m_numberOfThreads; ++threadId) 
+  for (int threadId = 0; threadId < m_numberOfThreads; ++threadId)
     traceThreads[threadId] = thread(&Tracer::traceThread, this, threadId);
 
   // join threads
-  for (int threadId = 0; threadId < m_numberOfThreads; ++threadId) 
+  for (int threadId = 0; threadId < m_numberOfThreads; ++threadId)
     traceThreads[threadId].join();
 
   // done! clean up
@@ -272,7 +272,7 @@ void Tracer::trace()
 void Tracer::traceThread(int threadId)
 {
   for (int screenIndex = threadId; screenIndex < m_screenBufferSize; screenIndex += m_numberOfThreads ) {
-    // find which pixel this screen cell is for        
+    // find which pixel this screen cell is for
     int x = screenIndex % m_renderWidth;
     int y = (screenIndex - x) / m_renderWidth;
 
@@ -362,7 +362,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
     if (intersectionTest.first) {
 
       // now find out if this is the closest.
-      if ((!object || intersectionTest.second < objectDistance) 
+      if ((!object || intersectionTest.second < objectDistance)
           && intersectionTest.second > 0.0001) {
 
         // we've found at least one intersection
@@ -407,7 +407,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
       double shadowCheck = surfaceNormal.dot(lightNormal);
 
       // if facing the light
-      if (shadowCheck > 0.0f) {
+      if (shadowCheck > 0.0) {
         // now we check it is not in shadow
         Ray shadowRay(intersection, lightNormal);
 
@@ -417,6 +417,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
         // distance to light
         double distanceToLight = Vector3(intersection, light->getPosition()).magnitude();
 
+        // TODO: shadows need to work nicely with transparent objects…
         // update this every loop
         bool inShadow = false;
 
@@ -424,8 +425,12 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
         for (auto obj : m_objects) {
           pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
 
-          if (intersectionTest.first && intersectionTest.second > 0.0001 && intersectionTest.second < distanceToLight)
-            inShadow = true;
+          // does this object lie on our intersection ray?
+          if (intersectionTest.first && intersectionTest.second > 0.0001 && intersectionTest.second < distanceToLight) {
+
+            if (obj->getMaterial()->getOpacity() == 0.0)
+              inShadow = true;
+          }
 
           if (inShadow)
             break;
@@ -446,7 +451,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
           Vector3 cameraNormal = - ray.getDirection();
 
           // reflect light normal around surface normal
-          // NOTE: we can just use shadowCheck here because it's 
+          // NOTE: we can just use shadowCheck here because it's
           //   surfaceNormal.dot(lightNormal)
           // also, this is already normalise, don't normalise again!
           Vector3 lightNormalReflection = (surfaceNormal * shadowCheck * 2) - lightNormal;
@@ -495,15 +500,16 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
         double refractiveIndexRatio = 1.0/1.03;
         double surfaceNormalDotRayDirection = surfaceNormal.dot(ray.getDirection());
         double transmissionCheck = refractiveIndexRatio * refractiveIndexRatio * (1.0 - (surfaceNormalDotRayDirection * surfaceNormalDotRayDirection));
-        
+
         // TODO: what if the ray is exiting the object?
+        // we could test this by checking the direction of the surface normal
 
         // does transmission occur?
         if (transmissionCheck <= 1.0) {
           // calculate direction of transmission
           Vector3 transmissionDirection = (ray.getDirection() * refractiveIndexRatio) - (surfaceNormal * (refractiveIndexRatio + sqrt(1.0 - transmissionCheck)));
 
-          // get new ray
+          // get new ray through the object
           Ray transmissionRay = Ray(intersection, transmissionDirection);
 
           // increment ray count
@@ -516,12 +522,13 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
     }
 
     // now we've done all the calculations, combine the colours and return what we get
+    // TODO: this is ugly…
     double objectOpacity = objectMaterial->getOpacity();
     Colour finalRayColour = (rayColour * (1.0 - objectOpacity)) + reflectionRayColour + (refractionRayColour * objectOpacity);
 
     // hand it back!
     return finalRayColour;
-  } 
+  }
 
   // ray does not intersect any objects hence ray must extend into the background of scene
   return m_renderBackgroundColour;
@@ -560,7 +567,7 @@ void Tracer::writeScreenToBmp(string filename)
 
   // magic bytes
   // note, rows must be a multiple of four
-  int extraBytes = (4 - (m_renderWidth * 3) % 4) % 4; 
+  int extraBytes = (4 - (m_renderWidth * 3) % 4) % 4;
   int imageBufferSize = (m_renderWidth * 3 + extraBytes) * m_renderHeight;
 
 
