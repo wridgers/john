@@ -1,4 +1,4 @@
-#include "tracer.h"
+#include "core/tracer.h"
 
 Tracer::Tracer()
 {
@@ -286,10 +286,6 @@ void Tracer::traceThread(int threadId)
     double offsetStop;
     double offsetStep;
 
-    // this is how much we reduce the rays intensity by
-    // TODO: replace this
-    double rayContrib;
-
     // this is to what degree we randomly jitter the ray
     // double jitter;
 
@@ -300,16 +296,12 @@ void Tracer::traceThread(int threadId)
         offsetStop  = 0.0;
         offsetStep  = 1.0;
 
-        rayContrib = 1.0;
-
         break;
 
       case AA_QUALITY_4:
         offsetStart = -0.25;
         offsetStop  = 0.25;
         offsetStep  = 0.5;
-
-        rayContrib = 0.25;
 
         break;
 
@@ -318,8 +310,6 @@ void Tracer::traceThread(int threadId)
         offsetStop  = 0.375;
         offsetStep  = 0.25;
 
-        rayContrib = 0.0625;
-
         break;
 
       default:
@@ -327,6 +317,8 @@ void Tracer::traceThread(int threadId)
         break;
     };
 
+    // list of colour results
+    vector<Colour> colours;
 
     // anti aliasing
     for (double offsetX = offsetStart; offsetX <= offsetStop; offsetX += offsetStep) {
@@ -338,12 +330,13 @@ void Tracer::traceThread(int threadId)
         m_stats[threadId].raysCast++;
 
         // get the colour of this pixel
-        Colour primaryColour = traceRay(threadId, primaryRay, m_maxRayDepth);
-
-        // set the colour of this pixel
-        m_screenBuffer[screenIndex] += (primaryColour * rayContrib);
+        Colour colour = traceRay(threadId, primaryRay, m_maxRayDepth);
+        colours.push_back(colour);
       }
     }
+
+    // set the colour of this pixel
+    m_screenBuffer[screenIndex] = Colour(colours);
   }
 }
 

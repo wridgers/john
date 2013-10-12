@@ -56,7 +56,8 @@ class Vector3
 
 };
 
-// typedefs for future expansion (Vector3f for example)
+// typedefs for future expansion
 typedef Vector3 Vector3d;
+typedef Vector3 Vector3f;
 
 #endif

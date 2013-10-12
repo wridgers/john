@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
   // quality
   tracer->setAntiAliasType(AA_TYPE_SUPERSAMPLE);
-  tracer->setAntiAliasQuality(AA_QUALITY_16);
+  tracer->setAntiAliasQuality(AA_QUALITY_1);
 
   // guess number of threads to use
   unsigned threads = thread::hardware_concurrency();

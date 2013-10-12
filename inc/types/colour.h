@@ -13,7 +13,7 @@ class Colour
     Colour();
     Colour(int r, int g, int b);
     Colour(double r, double g, double b);
-    Colour(vector<Colour*> colours);
+    Colour(vector<Colour>& colours);
 
     ~Colour();
 
