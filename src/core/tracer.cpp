@@ -10,39 +10,16 @@ Tracer::Tracer()
   // default anti aliasing
   setAntiAliasType(AA_TYPE_SUPERSAMPLE);
   setAntiAliasQuality(AA_QUALITY_4);
-
-  // background colour
-  setRenderBackgroundColour(Colour(0, 0, 0));
-
-  // lighting settings
-  useAmbientLighting(true);
-  setAmbientLightingColour(Colour(255, 255, 255));
-  setAmbientLightingIntensity(0.01);
 }
 
 Tracer::~Tracer()
 {
-  // delete the screen buffer
-  if (m_screenBuffer)
-    delete [] m_screenBuffer;
+  // delete the frame buffer
+  if (m_frameBuffer)
+    delete [] m_frameBuffer;
 
   // delete the stats
   delete [] m_stats;
-
-  // delete the camera
-  delete m_camera;
-
-  // delete the lights
-  for (auto light : m_lights)
-    delete light;
-
-  // delete materials
-  for (auto material : m_materials)
-    delete material;
-
-  // delete objects
-  for (auto object : m_objects)
-    delete object;
 }
 
 void Tracer::setNumberOfThreads(int threads)
@@ -61,11 +38,6 @@ void Tracer::setRenderResolution(int width, int height)
   m_renderHeight  = height;
 }
 
-void Tracer::setRenderBackgroundColour(Colour colour)
-{
-  m_renderBackgroundColour = colour;
-}
-
 void Tracer::setAntiAliasType(antiAliasType type)
 {
   m_antiAliasType = type;
@@ -76,29 +48,14 @@ void Tracer::setAntiAliasQuality(antiAliasQuality quality)
   m_antiAliasQuality = quality;
 }
 
-void Tracer::useAmbientLighting(bool enabled)
+bool Tracer::prepare()
 {
-  m_ambientLightingEnabled = enabled;
-}
+  // initialise frame buffer
+  m_frameBufferSize = m_renderWidth * m_renderHeight;
+  m_frameBuffer = new Colour[m_frameBufferSize];
 
-void Tracer::setAmbientLightingColour(Colour colour)
-{
-  m_ambientLightingColour = colour;
-}
-
-void Tracer::setAmbientLightingIntensity(double intensity)
-{
-  m_ambientLightingIntensity = intensity;
-}
-
-bool Tracer::init()
-{
-  // initialise screen buffer
-  m_screenBufferSize = m_renderWidth * m_renderHeight;
-  m_screenBuffer = new Colour[m_screenBufferSize];
-
-  for (int i = 0; i < m_screenBufferSize; ++i)
-    m_screenBuffer[i] = Colour();
+  for (int i = 0; i < m_frameBufferSize; ++i)
+    m_frameBuffer[i] = Colour();
 
   // initialise statistics struct
   m_stats = new threadStats[m_numberOfThreads];
@@ -110,146 +67,9 @@ bool Tracer::init()
   return true;
 }
 
-void Tracer::addLight(Light* light)
+void Tracer::setScene(Scene* scene) 
 {
-  m_lights.push_back(light);
-}
-
-void Tracer::addMaterial(Material* material)
-{
-  m_materials.push_back(material);
-}
-
-void Tracer::addObject(Object* object)
-{
-  m_objects.push_back(object);
-}
-
-bool Tracer::loadExampleScene()
-{
-  /////////////////////
-  // render settings //
-  /////////////////////
-
-  useAmbientLighting(true);
-  setAmbientLightingColour(Colour(255, 255, 255));
-  setAmbientLightingIntensity(0.08);
-  setRenderBackgroundColour(Colour(178, 207, 223));
-
-  ///////////////////
-  // light sources //
-  ///////////////////
-
-  // a single light source
-  Light *light;
-  light = new Light();
-  light->setPosition(Vector3(0, 299, -200));
-  light->setIntensity(80);
-  light->setColour(Colour(255, 255, 255));
-  addLight(light);
-
-  ////////////
-  // camera //
-  ////////////
-
-  // camera
-  m_camera = new Camera();
-  m_camera->setPosition(Vector3(0, 150, -800));
-  m_camera->setTarget(Vector3(0, 150, 0));
-  m_camera->setUpDirection(Vector3(0, -1, 0));
-  m_camera->setHorizontalFOV(60);
-  m_camera->setRenderDimensions(m_renderWidth, m_renderHeight);
-
-  ///////////////
-  // materials //
-  ///////////////
-
-  // white material
-  Material *white = new Material();
-  white->setDiffuseColour(Colour(255,255,255));
-  white->setSpecularIntensity(0);
-  white->setPhongSpecularity(0);
-  addMaterial(white);
-
-  // transparent material
-  Material *refraction = new Material();
-  refraction->setDiffuseColour(Colour(255,183,182));
-  refraction->setOpacity(1.0);
-  addMaterial(refraction);
-
-  // red material
-  Material *red = new Material();
-  red->setDiffuseColour(Colour(255,0,0));
-  red->setSpecularIntensity(0);
-  red->setPhongSpecularity(0);
-  addMaterial(red);
-
-  // blue material
-  Material *blue = new Material();
-  blue->setDiffuseColour(Colour(0,0,255));
-  blue->setSpecularIntensity(0);
-  blue->setPhongSpecularity(0);
-  addMaterial(blue);
-
-  /////////////
-  // spheres //
-  /////////////
-
-  // left sphere
-  Sphere *sphere = new Sphere();
-  sphere->setPosition(Vector3(-100, 100, 50));
-  sphere->setRadius(100);
-  sphere->setMaterial(white);
-  addObject(sphere);
-
-  // right sphere
-  sphere = new Sphere();
-  sphere->setPosition(Vector3(100, 70, -100));
-  sphere->setRadius(70);
-  sphere->setMaterial(refraction);
-  addObject(sphere);
-
-  ////////////
-  // planes //
-  ////////////
-
-  // bottom plane
-  Plane *plane = new Plane();
-  plane->setNormal(Vector3(0, 1, 0));
-  plane->setPosition(Vector3(0, 0, 0));
-  plane->setMaterial(white);
-  addObject(plane);
-
-  // top plane
-  plane = new Plane();
-  plane->setNormal(Vector3(0, -1, 0));
-  plane->setPosition(Vector3(0, 400, 0));
-  plane->setMaterial(white);
-  addObject(plane);
-
-  // rear plane
-  plane = new Plane();
-  plane->setNormal(Vector3(0, 0, -1));
-  plane->setPosition(Vector3(0, 0, 500));
-  plane->setMaterial(white);
-  addObject(plane);
-
-  // left plane
-  plane = new Plane();
-  plane->setNormal(Vector3(1, 0, 0));
-  plane->setPosition(Vector3(-350, 0, 0));
-  plane->setMaterial(blue);
-  addObject(plane);
-
-  // right plane
-  plane = new Plane();
-  plane->setNormal(Vector3(-1, 0, 0));
-  plane->setPosition(Vector3(350, 0, 0));
-  plane->setMaterial(red);
-  addObject(plane);
-
-  // action!
-  return true;
+  m_scene = scene;
 }
 
 void Tracer::trace()
@@ -271,10 +91,10 @@ void Tracer::trace()
 
 void Tracer::traceThread(int threadId)
 {
-  for (int screenIndex = threadId; screenIndex < m_screenBufferSize; screenIndex += m_numberOfThreads ) {
-    // find which pixel this screen cell is for
-    int x = screenIndex % m_renderWidth;
-    int y = (screenIndex - x) / m_renderWidth;
+  for (int frameIndex = threadId; frameIndex < m_frameBufferSize; frameIndex += m_numberOfThreads ) {
+    // find which pixel this frame cell is for
+    int x = frameIndex % m_renderWidth;
+    int y = (frameIndex - x) / m_renderWidth;
 
     // if no anti aliasing, set the quality to 1
     if (m_antiAliasType == AA_TYPE_NONE)
@@ -324,7 +144,7 @@ void Tracer::traceThread(int threadId)
     for (double offsetX = offsetStart; offsetX <= offsetStop; offsetX += offsetStep) {
       for (double offsetY = -offsetStart; offsetY <= offsetStop; offsetY += offsetStep) {
         // get our ray from the camera
-        Ray primaryRay = m_camera->getPixelRay(x + offsetX, y + offsetY);
+        Ray primaryRay = m_scene->getCamera(0)->getPixelRay(x + offsetX, y + offsetY);
 
         // increment ray count
         m_stats[threadId].raysCast++;
@@ -336,7 +156,7 @@ void Tracer::traceThread(int threadId)
     }
 
     // set the colour of this pixel
-    m_screenBuffer[screenIndex] = Colour(colours);
+    m_frameBuffer[frameIndex] = Colour(colours);
   }
 }
 
@@ -347,7 +167,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
   double      objectDistance = 0.0;
 
   // for every object
-  for (auto obj : m_objects) {
+  for (auto obj : m_scene->getObjects()) {
     // now, check if ray intersects the sphere
     pair<bool, double> intersectionTest = obj->intersectionCheck(ray);
 
@@ -383,10 +203,10 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
     Colour objectColour      = objectMaterial->getDiffuseColour();
 
     // calculate ambient lighting
-    rayColour += objectColour * (objectMaterial->getAmbientIntensity() * m_ambientLightingIntensity);
+    rayColour += objectColour * (objectMaterial->getAmbientIntensity() * m_scene->getAmbientLightingIntensity());
 
     // for each light
-    for (auto light : m_lights) {
+    for (auto light : m_scene->getLights()) {
 
       // calculate Phong attenuation
       double lightDistance = Vector3(intersection, light->getPosition()).magnitude();
@@ -415,7 +235,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
         bool inShadow = false;
 
         // check all objects
-        for (auto obj : m_objects) {
+        for (auto obj : m_scene->getObjects()) {
           pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
 
           // does this object lie on our intersection ray?
@@ -524,7 +344,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
   }
 
   // ray does not intersect any objects hence ray must extend into the background of scene
-  return m_renderBackgroundColour;
+  return m_scene->getEnvironmentColour();
 }
 
 void Tracer::writeScreenToBmp(string filename)
@@ -589,7 +409,7 @@ void Tracer::writeScreenToBmp(string filename)
   memset(imageBuffer, 0, sizeof(char)*imageBufferSize);
 
   // for every pixel index
-  for (int i = 0; i < m_screenBufferSize; ++i ) {
+  for (int i = 0; i < m_frameBufferSize; ++i ) {
     int x = i % m_renderWidth;
     int y = (i - x) / m_renderWidth;
 
@@ -598,9 +418,9 @@ void Tracer::writeScreenToBmp(string filename)
     int n = (m_renderHeight - 1 - y) * (m_renderWidth * 3 + extraBytes) + (x * 3);
 
     // set blue, green, and red byte
-    imageBuffer[n]    = (char)m_screenBuffer[i].getBlueRGB();
-    imageBuffer[n+1]  = (char)m_screenBuffer[i].getGreenRGB();
-    imageBuffer[n+2]  = (char)m_screenBuffer[i].getRedRGB();
+    imageBuffer[n]    = (char)m_frameBuffer[i].getBlueRGB();
+    imageBuffer[n+1]  = (char)m_frameBuffer[i].getGreenRGB();
+    imageBuffer[n+2]  = (char)m_frameBuffer[i].getRedRGB();
   }
 
   // write to file

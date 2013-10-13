@@ -8,19 +8,16 @@
 #include <thread>
 #include <vector>
 
-#include "cameras/camera.h"
-#include "lights/light.h"
-#include "materials/material.h"
+#include "core/scene.h"
+
 #include "maths/vector3.h"
-#include "objects/plane.h"
-#include "objects/sphere.h"
 #include "types/colour.h"
 #include "types/ray.h"
 
 // thread render statistics struct
 struct threadStats 
 {
-    long    raysCast;
+  long    raysCast;
 };
 
 // render setting enums
@@ -32,82 +29,56 @@ using namespace std;
 class Tracer
 {
 public:
-    Tracer();
-    ~Tracer();
+  Tracer();
+  ~Tracer();
 
-    // core settings
-    void setNumberOfThreads(int threads);
-    void setMaxRayDepth(int depth);
+  // core settings
+  void setNumberOfThreads(int threads);
+  void setMaxRayDepth(int depth);
 
-    // render settings 
-    void setRenderResolution(int width, int height);
+  // render settings 
+  void setRenderResolution(int width, int height);
 
-    // anti alias settings
-    void setAntiAliasType(antiAliasType type);
-    void setAntiAliasQuality(antiAliasQuality quality);
+  // anti alias settings
+  void setAntiAliasType(antiAliasType type);
+  void setAntiAliasQuality(antiAliasQuality quality);
 
-    // background colour
-    void setRenderBackgroundColour(Colour colour);
+  // prepare
+  bool prepare();
 
-    // lighting settings
-    void useAmbientLighting(bool enabled);
-    void setAmbientLightingColour(Colour colour);
-    void setAmbientLightingIntensity(double intensity);
+  // scene
+  void setScene(Scene* scene);
 
-    // prepare
-    bool init();
+  // trace
+  void   trace();
+  void   traceThread(int threadOffset);
+  Colour traceRay(int threadId, Ray ray, int rayDepth);
 
-    // scene management
-    void addLight(Light* light);
-    void addMaterial(Material* material);
-    void addObject(Object* object);
+  // save buffer
+  void writeScreenToBmp(string filename);
 
-    // load scene
-    bool loadExampleScene();
-    bool loadScene();
-
-    // trace
-    void   trace();
-    void   traceThread(int threadOffset);
-    Colour traceRay(int threadId, Ray ray, int rayDepth);
-
-    // save buffer
-    void writeScreenToBmp(string filename);
-
-    // render stats
-    long getRaycount();
+  // render stats
+  long getRaycount();
 
 private:
+  // render settings
+  int                 m_renderWidth, m_renderHeight;
+  int                 m_maxRayDepth;
+  antiAliasType       m_antiAliasType;
+  antiAliasQuality    m_antiAliasQuality;
 
-    // threading
-   int                  m_numberOfThreads;
+  // screen buffer
+  int                 m_frameBufferSize;
+  Colour*             m_frameBuffer;
 
-    // render settings
-    int                 m_renderWidth, m_renderHeight;
-    int                 m_maxRayDepth;
-    antiAliasType       m_antiAliasType;
-    antiAliasQuality    m_antiAliasQuality;
+  // scene to render
+  Scene*              m_scene;
 
-    // background
-    Colour              m_renderBackgroundColour;
+  // threading
+  int                  m_numberOfThreads;
 
-    // ambient lighting settings
-    bool                m_ambientLightingEnabled;
-    Colour              m_ambientLightingColour;
-    double              m_ambientLightingIntensity;
-
-    // screen buffer
-    int                 m_screenBufferSize;
-    Colour*             m_screenBuffer;
-
-    // scene objects
-    Camera*             m_camera;
-    vector<Light*>      m_lights;
-    vector<Material*>   m_materials;
-    vector<Object*>     m_objects;
-
-    // render stats
-    threadStats*        m_stats;
+  // render stats
+  threadStats*        m_stats;
 };
 
 #endif

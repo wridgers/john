@@ -7,15 +7,11 @@ int main(int argc, char **argv)
   // print stuff
   cout << "john - v0.1.1 - a Will Ridgers project\n" << endl;
 
-  // config
-  int renderWidth = 640;
-  int renderHeight = 480;
-
-  // load tracer, apply some settings
+  // load tracer
   Tracer *tracer = new Tracer();
-  tracer->setRenderResolution(renderWidth, renderHeight);
 
-  // quality
+  // configure tracer
+  tracer->setRenderResolution(640, 480);
   tracer->setAntiAliasType(AA_TYPE_SUPERSAMPLE);
   tracer->setAntiAliasQuality(AA_QUALITY_1);
 
@@ -24,9 +20,13 @@ int main(int argc, char **argv)
   tracer->setNumberOfThreads(threads);
   cout << "threads: " << threads << endl;
 
-  // load stuff
-  tracer->init();
-  tracer->loadExampleScene();
+  // load scene
+  Scene *scene = new Scene();
+  scene->loadScene("simple.scene");
+
+  // prepare
+  tracer->setScene(scene);
+  tracer->prepare();
 
   // get time of start
   chrono::high_resolution_clock::time_point traceStart = chrono::high_resolution_clock::now();
@@ -40,11 +40,13 @@ int main(int argc, char **argv)
 
   cout << "trace complete in " << (traceMilliseconds/1000.0) << " seconds" << endl;
   cout << "total rays: " << tracer->getRaycount() << endl;
+  cout << fixed << "rays per second: " << (tracer->getRaycount()) / (traceMilliseconds/1000.0) << endl;
 
   // save screen buffer
   tracer->writeScreenToBmp("image.bmp");
 
   // clean up
+  delete scene;
   delete tracer;
 
   // return okay!
