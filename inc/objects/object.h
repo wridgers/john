@@ -13,8 +13,7 @@ public:
   Object();
   ~Object();
 
-  // mathematics functions, virtual as they are
-  // unique to each type of object
+  // mathematics functions, unique to each type of object
   virtual pair<bool, double>  intersectionCheck(Ray& ray);
   virtual Vector3             surfaceNormal(Vector3& intersection);
 
