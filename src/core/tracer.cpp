@@ -48,6 +48,11 @@ void Tracer::setAntiAliasQuality(antiAliasQuality quality)
   m_antiAliasQuality = quality;
 }
 
+void Tracer::setScene(Scene* scene) 
+{
+  m_scene = scene;
+}
+
 bool Tracer::prepare()
 {
   // initialise frame buffer
@@ -64,12 +69,10 @@ bool Tracer::prepare()
   for (int i = 0; i < m_numberOfThreads; ++i)
     m_stats[i].raysCast = 0;
 
-  return true;
-}
+  // for now we need to we some camera stuff
+  m_scene->getCamera(0)->setRenderDimensions(m_renderWidth, m_renderHeight);
 
-void Tracer::setScene(Scene* scene) 
-{
-  m_scene = scene;
+  return true;
 }
 
 void Tracer::trace()
@@ -212,78 +215,85 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
       double lightDistance = Vector3(intersection, light->getPosition()).magnitude();
       double lightAttenuation = light->getIntensity() / (pow(lightDistance, objectMaterial->getPhongAttenuation()) + 0.01);
 
-      // get direction from intersection to lightLocation
-      Vector3 lightNormal(intersection, light->getPosition());
-      lightNormal.normalise();
+      // vector of shadow results
+      vector<Colour> softShadow;
 
-      // if the dot product is negative, it is not facing the light
-      double shadowCheck = surfaceNormal.dot(lightNormal);
+      // cast shadow rays
+      for (int softShadowRay = 0; softShadowRay < 200; ++softShadowRay) {
+        Colour shadowColour;
 
-      // if facing the light
-      if (shadowCheck > 0.0) {
-        // now we check it is not in shadow
-        Ray shadowRay(intersection, lightNormal);
+        Vector3 lightPosition = light->getPosition();
+        lightPosition.disturb(50.0);
 
-        // increment ray count
-        m_stats[threadId].raysCast++;
+        // get direction from intersection to lightLocation
+        Vector3 lightNormal(intersection, lightPosition);
+        lightNormal.normalise();
 
-        // distance to light
-        double distanceToLight = Vector3(intersection, light->getPosition()).magnitude();
+        // if the dot product is negative, it is not facing the light
+        double shadowCheck = surfaceNormal.dot(lightNormal);
 
-        // TODO: shadows need to work nicely with transparent objects…
-        // update this every loop
-        bool inShadow = false;
+        // if facing the light
+        if (shadowCheck > 0.0) {
+          // now we check it is not in shadow
+          Ray shadowRay(intersection, lightNormal);
 
-        // check all objects
-        for (auto obj : m_scene->getObjects()) {
-          pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
+          // increment ray count
+          m_stats[threadId].raysCast++;
 
-          // does this object lie on our intersection ray?
-          if (intersectionTest.first && intersectionTest.second > 0.0001 && intersectionTest.second < distanceToLight) {
+          // distance to light
+          double distanceToLight = Vector3(intersection, light->getPosition()).magnitude();
 
-            if (obj->getMaterial()->getOpacity() == 0.0)
-              inShadow = true;
+          // TODO: shadows need to work nicely with transparent objects…
+          // update this every loop
+          bool inShadow = false;
+
+          // check all objects
+          for (auto obj : m_scene->getObjects()) {
+            pair<bool, double> intersectionTest = obj->intersectionCheck(shadowRay);
+
+            // does this object lie on our intersection ray?
+            if (intersectionTest.first && intersectionTest.second > 0.0001 && intersectionTest.second < distanceToLight) {
+
+              if (obj->getMaterial()->getOpacity() == 0.0)
+                inShadow = true;
+            }
+
+            if (inShadow)
+              break;
           }
 
-          if (inShadow)
-            break;
+          // only add light if not in shadow
+          if (!inShadow) {
+            // we 'add' the light from the current light to the screen
+
+            // lambertian reflectance
+            shadowColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseIntensity() * shadowCheck);
+
+            // normal to camera
+            Vector3 cameraNormal = - ray.getDirection();
+
+            // reflect light normal around surface normal
+            Vector3 lightNormalReflection = (surfaceNormal * shadowCheck * 2) - lightNormal;
+
+            // now find the angle between these normal vectors
+            double cosAlpha = lightNormalReflection.dot(cameraNormal);
+
+            // calculate phong specular stuff
+            double specular = pow(cosAlpha, objectMaterial->getPhongSpecularity());
+
+            // TODO: find out why it's occasionally negative
+            if (specular < 0)
+              specular = 0;
+
+            // add to pixel
+            shadowColour += (255 * lightAttenuation * objectMaterial->getSpecularIntensity() * specular);
+          }
         }
 
-        // only add light if not in shadow
-        if (!inShadow) {
-          // we 'add' the light from the current light to the screen
-
-          // lambertian reflectance
-          // calculate diffuse lighting
-          rayColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseIntensity() * shadowCheck);
-
-          // normal to camera
-          // OLD AND SLOW: Vector3 cameraNormal(intersection, m_camera->getPosition());
-          // OLD AND SLOW: cameraNormal.normalise();
-          // this optimisation saved around 5% in my test. :)
-          Vector3 cameraNormal = - ray.getDirection();
-
-          // reflect light normal around surface normal
-          // NOTE: we can just use shadowCheck here because it's
-          //   surfaceNormal.dot(lightNormal)
-          // also, this is already normalise, don't normalise again!
-          Vector3 lightNormalReflection = (surfaceNormal * shadowCheck * 2) - lightNormal;
-
-          // now find the angle between these normal vectors
-          // note, these are unit so the magnitude is 1 ;)
-          double cosAlpha = lightNormalReflection.dot(cameraNormal);
-
-          // calculate phong specular stuff
-          double specular = pow(cosAlpha, objectMaterial->getPhongSpecularity());
-
-          // TODO: find out why it's occasionally negative
-          if (specular < 0)
-            specular = 0;
-
-          // add to pixel
-          rayColour += (255 * lightAttenuation * objectMaterial->getSpecularIntensity() * specular);
-        }
+        softShadow.push_back(shadowColour);
       }
+
+      rayColour += Colour(softShadow);
     }
 
     // only do reflection and/or transmission if we haven't hit a ray limit
@@ -309,6 +319,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
       if (objectMaterial->getOpacity() > 0.0) {
         // for now ignore indices of refraction of the media, we're just looking at light going through.
 
+        // TODO: get this correctly
         // get the ratio of indices of refraction
         double refractiveIndexRatio = 1.0/1.03;
         double surfaceNormalDotRayDirection = surfaceNormal.dot(ray.getDirection());

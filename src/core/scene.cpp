@@ -144,9 +144,7 @@ bool Scene::loadScene(string sceneFile)
   Camera *camera = new Camera();
   camera->setPosition(Vector3(0, 150, -800));
   camera->setTarget(Vector3(0, 150, 0));
-  camera->setUpDirection(Vector3(0, -1, 0));
   camera->setHorizontalFOV(60);
-  camera->setRenderDimensions(640, 480);
   addCamera(camera);
 
   ///////////////
@@ -165,6 +163,12 @@ bool Scene::loadScene(string sceneFile)
   refraction->setDiffuseColour(Colour(255,183,182));
   refraction->setOpacity(1.0);
   addMaterial(refraction);
+
+  // reflection material
+  Material *reflection = new Material();
+  reflection->setDiffuseColour(Colour(255,183,182));
+  reflection->setReflectivity(1.0);
+  addMaterial(reflection);
 
   // red material
   Material *red = new Material();
@@ -195,7 +199,7 @@ bool Scene::loadScene(string sceneFile)
   sphere = new Sphere();
   sphere->setPosition(Vector3(100, 70, -100));
   sphere->setRadius(70);
-  sphere->setMaterial(refraction);
+  sphere->setMaterial(reflection);
   addObject(sphere);
 
   ////////////

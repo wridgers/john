@@ -11,7 +11,7 @@ int main(int argc, char **argv)
   Tracer *tracer = new Tracer();
 
   // configure tracer
-  tracer->setRenderResolution(640, 480);
+  tracer->setRenderResolution(1280, 720);
   tracer->setAntiAliasType(AA_TYPE_SUPERSAMPLE);
   tracer->setAntiAliasQuality(AA_QUALITY_1);
 

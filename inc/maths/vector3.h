@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <cmath>
 #include <iostream>
+#include <random>
 
 using namespace std;
 
@@ -50,9 +51,13 @@ class Vector3
     double      dot(const Vector3 &rhs);
     Vector3     cross(const Vector3 &rhs);
 
+    // other vector operations
     double      magnitude();
     double      magnitudeSquare();
     void        normalise();
+
+    // random randomise
+    void        disturb(double amount);
 
 };
 
