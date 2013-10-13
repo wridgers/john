@@ -10,54 +10,55 @@ using namespace std;
 
 class Vector3
 {
-  public:
-    Vector3();
-    Vector3(int a, int b, int c);
-    Vector3(double a, double b, double c);
-    Vector3(Vector3 from, Vector3 to);
-    ~Vector3();
+public:
+  Vector3();
+  Vector3(int a, int b, int c);
+  Vector3(double a, double b, double c);
+  Vector3(Vector3 from, Vector3 to);
+  ~Vector3();
 
-    // actual values
-    double x, y, z;
+  // actual values
+  double x, y, z;
 
-    // assignment operator
-    Vector3& operator= (const Vector3 &rhs);
+  // assignment operator
+  Vector3& operator= (const Vector3 &rhs);
 
-    // binary arithmetic operators
-    Vector3 operator+ (const Vector3 &rhs);
-    Vector3 operator+ (const double &rhs);
-    Vector3 operator+ ();
+  // binary arithmetic operators
+  Vector3 operator+ (const Vector3 &rhs);
+  Vector3 operator+ (const double &rhs);
+  Vector3 operator+ ();
 
-    Vector3 operator- (const Vector3 &rhs);
-    Vector3 operator- (const double &rhs);
-    Vector3 operator- ();
+  Vector3 operator- (const Vector3 &rhs);
+  Vector3 operator- (const double &rhs);
+  Vector3 operator- ();
 
-    Vector3 operator* (const double &rhs);
-    Vector3 operator/ (const double &rhs);
+  Vector3 operator* (const double &rhs);
+  Vector3 operator/ (const double &rhs);
 
-    // compound assignment operators
-    Vector3& operator+= (const Vector3 &rhs);
-    Vector3& operator+= (const double &rhs);
-    Vector3& operator-= (const Vector3 &rhs);
-    Vector3& operator-= (const double &rhs);
-    Vector3& operator*= (const double &rhs);
-    Vector3& operator/= (const double &rhs);
+  // compound assignment operators
+  Vector3& operator+= (const Vector3 &rhs);
+  Vector3& operator+= (const double &rhs);
+  Vector3& operator-= (const Vector3 &rhs);
+  Vector3& operator-= (const double &rhs);
+  Vector3& operator*= (const double &rhs);
+  Vector3& operator/= (const double &rhs);
 
-    // comparison operators
-    bool operator== (const Vector3 &rhs);
-    bool operator!= (const Vector3 &rhs);
+  // comparison operators
+  bool operator== (const Vector3 &rhs);
+  bool operator!= (const Vector3 &rhs);
 
-    // vector arithmetic
-    double      dot(const Vector3 &rhs);
-    Vector3     cross(const Vector3 &rhs);
+  // vector arithmetic
+  double      dot(const Vector3 &rhs);
+  Vector3     cross(const Vector3 &rhs);
 
-    // other vector operations
-    double      magnitude();
-    double      magnitudeSquare();
-    void        normalise();
+  // other vector operations
+  double      magnitude();
+  double      magnitudeSquare();
+  void        normalise();
 
-    // random randomise
-    void        disturb(double amount);
+  // randomise
+  void        disturb(double amount);
+  void        disturb(Vector3 amount);
 
 };
 

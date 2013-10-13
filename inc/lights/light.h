@@ -9,23 +9,23 @@ using namespace std;
 class Light
 {
 public:
-    Light();
-    Light(Vector3 position);
-    ~Light();
+  Light();
+  Light(Vector3 position);
+  ~Light();
 
-    Colour  getColour();
-    void    setColour(Colour colour);
+  Colour  getColour();
+  void    setColour(Colour colour);
 
-    double  getIntensity();
-    void    setIntensity(double intensity);
+  double  getIntensity();
+  void    setIntensity(double intensity);
 
-    Vector3 getPosition();
-    void    setPosition(Vector3 position);
+  Vector3 getPosition();
+  void    setPosition(Vector3 position);
 
 private:
-    Colour      m_colour;
-    double      m_intensity;
-    Vector3     m_position;
+  Colour      m_colour;
+  double      m_intensity;
+  Vector3     m_position;
 };
 
 #endif

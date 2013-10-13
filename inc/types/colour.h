@@ -9,48 +9,48 @@ using namespace std;
 
 class Colour
 {
-  public:
-    Colour();
-    Colour(int r, int g, int b);
-    Colour(double r, double g, double b);
-    Colour(vector<Colour>& colours);
+public:
+  Colour();
+  Colour(int r, int g, int b);
+  Colour(double r, double g, double b);
+  Colour(vector<Colour>& colours);
 
-    ~Colour();
+  ~Colour();
 
-    // public information
-    double m_red, m_green, m_blue;
+  // public information
+  double m_red, m_green, m_blue;
 
-    // assignment operator
-    Colour operator= (const Colour &rhs);
+  // assignment operator
+  Colour operator= (const Colour &rhs);
 
-    // binary arithmetic operators
-    Colour  operator+ (const Colour &rhs);
-    Colour  operator+ (const double &rhs);
-    Colour  operator+ ();
+  // binary arithmetic operators
+  Colour  operator+ (const Colour &rhs);
+  Colour  operator+ (const double &rhs);
+  Colour  operator+ ();
 
-    Colour  operator- (const Colour &rhs);
-    Colour  operator- (const double &rhs);
-    Colour  operator- ();
+  Colour  operator- (const Colour &rhs);
+  Colour  operator- (const double &rhs);
+  Colour  operator- ();
 
-    Colour  operator* (const double &rhs);
-    Colour  operator/ (const double &rhs);
+  Colour  operator* (const double &rhs);
+  Colour  operator/ (const double &rhs);
 
-    // compound assignment operators
-    Colour& operator+= (const Colour &rhs);
-    Colour& operator+= (const double &rhs);
-    Colour& operator-= (const Colour &rhs);
-    Colour& operator-= (const double &rhs);
-    Colour& operator*= (const double &rhs);
-    Colour& operator/= (const double &rhs);
+  // compound assignment operators
+  Colour& operator+= (const Colour &rhs);
+  Colour& operator+= (const double &rhs);
+  Colour& operator-= (const Colour &rhs);
+  Colour& operator-= (const double &rhs);
+  Colour& operator*= (const double &rhs);
+  Colour& operator/= (const double &rhs);
 
-    // comparison operators
-    bool operator== (const Colour &rhs);
-    bool operator!= (const Colour &rhs);
+  // comparison operators
+  bool operator== (const Colour &rhs);
+  bool operator!= (const Colour &rhs);
 
-    // for image output
-    int getRedRGB();
-    int getGreenRGB();
-    int getBlueRGB();
+  // for image output
+  int getRedRGB();
+  int getGreenRGB();
+  int getBlueRGB();
 };
 
 #endif

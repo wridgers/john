@@ -221,3 +221,16 @@ void Vector3::disturb(double amount)
   y += dist(device);
   z += dist(device);
 }
+
+void Vector3::disturb(Vector3 amount)
+{
+  std::random_device device;
+
+  std::uniform_real_distribution<double> distX(-amount.x, amount.x);
+  std::uniform_real_distribution<double> distY(-amount.y, amount.y);
+  std::uniform_real_distribution<double> distZ(-amount.z, amount.z);
+
+  x += distX(device);
+  y += distY(device);
+  z += distZ(device);
+}
