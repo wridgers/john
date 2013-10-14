@@ -1,6 +1,6 @@
 #include "core/scene.h"
 
-Scene::Scene() 
+Scene::Scene()
 {
   // TODO: sane defaults
 }
@@ -165,13 +165,13 @@ bool Scene::loadScene(string sceneFile)
 
   // transparent material
   Material *refraction = new Material();
-  refraction->setDiffuseColour(Colour(255,183,182));
+  refraction->setDiffuseColour(Colour(255, 255, 255));
   refraction->setOpacity(1.0);
   addMaterial(refraction);
 
   // reflection material
   Material *reflection = new Material();
-  reflection->setDiffuseColour(Colour(255,183,182));
+  reflection->setDiffuseColour(Colour(255, 255, 255));
   reflection->setReflectivity(1.0);
   addMaterial(reflection);
 

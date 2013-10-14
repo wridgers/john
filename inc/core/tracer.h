@@ -15,7 +15,7 @@
 #include "types/ray.h"
 
 // thread render statistics struct
-struct threadStats 
+struct threadStats
 {
   long    raysCast;
 };
@@ -36,7 +36,7 @@ public:
   void setNumberOfThreads(int threads);
   void setMaxRayDepth(int depth);
 
-  // render settings 
+  // render settings
   void setRenderResolution(int width, int height);
 
   // anti alias settings
