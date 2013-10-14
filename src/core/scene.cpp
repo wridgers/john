@@ -130,10 +130,15 @@ bool Scene::loadScene(string sceneFile)
   ///////////////////
 
   // a single light source
-  Light *light;
-  light = new Light();
+  Light *light = new Light();
   light->setPosition(Vector3(0, 299, -200));
-  light->setIntensity(80);
+  light->setIntensity(40);
+  light->setColour(Colour(255, 255, 255));
+  addLight(light);
+
+  light = new Light();
+  light->setPosition(Vector3(-100, 299, -500));
+  light->setIntensity(40);
   light->setColour(Colour(255, 255, 255));
   addLight(light);
 
@@ -192,7 +197,7 @@ bool Scene::loadScene(string sceneFile)
   Sphere *sphere = new Sphere();
   sphere->setPosition(Vector3(-100, 100, 50));
   sphere->setRadius(100);
-  sphere->setMaterial(white);
+  sphere->setMaterial(reflection);
   addObject(sphere);
 
   // right sphere

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
   // print stuff
   cout << "john - v0.1.1 - a Will Ridgers project\n" << endl;
@@ -13,7 +13,7 @@ int main(int argc, char **argv)
   // configure tracer
   tracer->setRenderResolution(1280, 720);
   tracer->setAntiAliasType(AA_TYPE_SUPERSAMPLE);
-  tracer->setAntiAliasQuality(AA_QUALITY_1);
+  tracer->setAntiAliasQuality(AA_QUALITY_4);
 
   // guess number of threads to use
   unsigned threads = thread::hardware_concurrency();

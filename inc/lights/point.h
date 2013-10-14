@@ -5,13 +5,14 @@
 
 using namespace std;
 
-class AreaLight : public Light
+class PointLight : public Light
 {
 public:
-  AreaLight();
-  ~AreaLight();
+  PointLight();
+  ~PointLight();
 
 private:
+
 };
 
 #endif
