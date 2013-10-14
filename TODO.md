@@ -15,8 +15,8 @@
     * scene handler
     * load scene from file
       - blender exporter
-    * binary space partitioning
-    * time factor for animation and motion blur
+    * binary space partitioning and kd-trees
+    * time factor for motion blur
 
   - Objects
     * triangles
@@ -24,8 +24,7 @@
     * cylinder
 
   - Quality
-    * anti aliasing
-      - grid, jitter, adaptive
+    * adaptive jitter sampling
 
   - Lighting
     * soft shadows
