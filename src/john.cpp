@@ -34,13 +34,17 @@ int main(int argc, char **argv)
   // trace!
   tracer->trace();
 
+  // TODO: show progress
+
   // get time of stop
   chrono::high_resolution_clock::time_point traceStop = chrono::high_resolution_clock::now();
   unsigned traceMilliseconds = (unsigned)chrono::duration_cast<chrono::milliseconds>(traceStop - traceStart).count();
+  double traceSeconds = (traceMilliseconds / 1000.0);
 
-  cout << "trace complete in " << (traceMilliseconds/1000.0) << " seconds" << endl;
-  cout << "total rays: " << tracer->getRaycount() << endl;
-  cout << fixed << "rays per second: " << (tracer->getRaycount()) / (traceMilliseconds/1000.0) << endl;
+  cout << fixed << endl;
+  cout << "time  : " << traceSeconds << " seconds" << endl;
+  cout << "rays  : " << tracer->getRaycount() << endl;
+  cout << "rays/s: " << (tracer->getRaycount() / traceSeconds) << endl;
 
   // save screen buffer
   tracer->writeScreenToBmp("image.bmp");

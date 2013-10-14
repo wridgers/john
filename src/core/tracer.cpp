@@ -219,13 +219,15 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
       vector<Colour> softShadow;
 
       // cast shadow rays
-      for (int softShadowRayX = -4; softShadowRayX <= 4; ++softShadowRayX) {
-        for (int softShadowRayY = -4; softShadowRayY <= 4; ++softShadowRayY) {
+      for (int softShadowRayX = 0; softShadowRayX < 4; ++softShadowRayX) {
+        for (int softShadowRayY = 0; softShadowRayY < 4; ++softShadowRayY) {
 
+          // TODO: would a double be smarter/faster?
+          // the shadow colour for this particular ray
           Colour shadowColour;
 
-          Vector3 lightPosition = light->getPosition() + Vector3(softShadowRayX * 20, softShadowRayY * 20, 0);
-          /* lightPosition.disturb(50.0); */
+          // TODO: need to add jitter
+          Vector3 lightPosition = light->getPosition() + Vector3((softShadowRayX - 2) * 40, (softShadowRayY - 2) * 40, 0);
 
           // get direction from intersection to lightLocation
           Vector3 lightNormal(intersection, lightPosition);
