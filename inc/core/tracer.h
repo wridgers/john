@@ -21,8 +21,17 @@ struct threadStats
 };
 
 // render setting enums
-enum antiAliasType { AA_TYPE_NONE, AA_TYPE_SUPERSAMPLE, AA_TYPE_ADAPTIVE, AA_TYPE_STOCHASTIC};
-enum antiAliasQuality { AA_QUALITY_1, AA_QUALITY_4, AA_QUALITY_16 };
+enum sampleType {
+  // no sampling. worst quality, fastest
+  SAMPLE_NONE,
+
+  // exact number of samples, best quality but slowest
+  SAMPLE_FULL,
+
+  // change number of samples based on initial samples
+  // faster, potentially lower quality
+  SAMPLE_ADAPTIVE
+};
 
 using namespace std;
 
@@ -39,9 +48,12 @@ public:
   // render settings
   void setRenderResolution(int width, int height);
 
-  // anti alias settings
-  void setAntiAliasType(antiAliasType type);
-  void setAntiAliasQuality(antiAliasQuality quality);
+  // sampling settings
+  void setPixelSampleType(sampleType type);
+  void setPixelSamples(unsigned short samples);
+
+  void setShadowSampleType(sampleType type);
+  void setShadowSamples(unsigned short samples);
 
   // prepare
   bool prepare();
@@ -64,8 +76,14 @@ private:
   // render settings
   int                 m_renderWidth, m_renderHeight;
   int                 m_maxRayDepth;
-  antiAliasType       m_antiAliasType;
-  antiAliasQuality    m_antiAliasQuality;
+
+  // pixel sampling
+  sampleType          m_pixelSampleType;
+  unsigned short      m_pixelSamples;
+
+  // shadow sampling
+  sampleType          m_shadowSampleType;
+  unsigned short      m_shadowSamples;
 
   // screen buffer
   int                 m_frameBufferSize;

@@ -7,9 +7,8 @@ Tracer::Tracer()
   setMaxRayDepth(100);
   setRenderResolution(640, 480);
 
-  // default anti aliasing
-  setAntiAliasType(AA_TYPE_SUPERSAMPLE);
-  setAntiAliasQuality(AA_QUALITY_4);
+  setPixelSampleType(SAMPLE_NONE);
+  setShadowSampleType(SAMPLE_NONE);
 }
 
 Tracer::~Tracer()
@@ -38,14 +37,36 @@ void Tracer::setRenderResolution(int width, int height)
   m_renderHeight  = height;
 }
 
-void Tracer::setAntiAliasType(antiAliasType type)
+void Tracer::setPixelSampleType(sampleType type)
 {
-  m_antiAliasType = type;
+  m_pixelSampleType = type;
+
+  if (type == SAMPLE_NONE)
+    m_pixelSamples = 1;
 }
 
-void Tracer::setAntiAliasQuality(antiAliasQuality quality)
+void Tracer::setPixelSamples(unsigned short samples)
 {
-  m_antiAliasQuality = quality;
+  m_pixelSamples = samples;
+
+  if (samples == 1)
+    m_pixelSampleType = SAMPLE_NONE;
+}
+
+void Tracer::setShadowSampleType(sampleType type)
+{
+  m_shadowSampleType = type;
+
+  if (type == SAMPLE_NONE)
+    m_shadowSamples = 1;
+}
+
+void Tracer::setShadowSamples(unsigned short samples)
+{
+  m_shadowSamples = samples;
+
+  if (samples == 1)
+    m_shadowSampleType = SAMPLE_NONE;
 }
 
 void Tracer::setScene(Scene* scene)
@@ -99,67 +120,47 @@ void Tracer::traceThread(int threadId)
     int x = frameIndex % m_renderWidth;
     int y = (frameIndex - x) / m_renderWidth;
 
-    // if no anti aliasing, set the quality to 1
-    if (m_antiAliasType == AA_TYPE_NONE)
-      m_antiAliasQuality = AA_QUALITY_1;
-
-    // anti alias values
-    // this is how we split up the pixel
-    double offsetStart;
-    double offsetStop;
-    double offsetStep;
-
-    // this is to what degree we randomly jitter the ray
-    // double jitter;
-
     // precalculated values for anti aliasing
-    switch(m_antiAliasQuality) {
-      case AA_QUALITY_1:
-        offsetStart = 0.0;
-        offsetStop  = 0.0;
-        offsetStep  = 1.0;
+    switch(m_pixelSampleType) {
+      case SAMPLE_NONE: {
 
-        break;
-
-      case AA_QUALITY_4:
-        offsetStart = -0.25;
-        offsetStop  = 0.25;
-        offsetStep  = 0.5;
-
-        break;
-
-      case AA_QUALITY_16:
-        offsetStart = -0.375;
-        offsetStop  = 0.375;
-        offsetStep  = 0.25;
-
-        break;
-
-      default:
-        // this should never happen...
-        break;
-    };
-
-    // list of colour results
-    vector<Colour> colours;
-
-    // anti aliasing
-    for (double offsetX = offsetStart; offsetX <= offsetStop; offsetX += offsetStep) {
-      for (double offsetY = -offsetStart; offsetY <= offsetStop; offsetY += offsetStep) {
-        // get our ray from the camera
-        Ray primaryRay = m_scene->getCamera(0)->getPixelRay(x + offsetX, y + offsetY);
-
-        // increment ray count
+        // get our ray from the camera and trace it
+        Ray primaryRay = m_scene->getCamera(0)->getPixelRay(x, y);
         m_stats[threadId].raysCast++;
+        m_frameBuffer[frameIndex] = traceRay(threadId, primaryRay, m_maxRayDepth);
 
-        // get the colour of this pixel
-        Colour colour = traceRay(threadId, primaryRay, m_maxRayDepth);
-        colours.push_back(colour);
+        break;
       }
-    }
 
-    // set the colour of this pixel
-    m_frameBuffer[frameIndex] = Colour(colours);
+      case SAMPLE_FULL: {
+        // pixel samples
+        vector<Colour> colours;
+
+        // step size
+        double step = 1.0 / m_pixelSamples;
+
+        // pixel sampling
+        for (int sampleX = 0; sampleX < m_pixelSamples; ++sampleX) {
+          for (int sampleY = 0; sampleY < m_pixelSamples; ++sampleY) {
+
+            // get our ray from the camera and trace it
+            Ray primaryRay = m_scene->getCamera(0)->getPixelRay(x + sampleX * step, y + sampleY * step);
+            m_stats[threadId].raysCast++;
+            colours.push_back(traceRay(threadId, primaryRay, m_maxRayDepth));
+          }
+        }
+
+        // set the colour of this pixel to the average of our samples
+        m_frameBuffer[frameIndex] = Colour(colours);
+
+        break;
+      }
+
+      case SAMPLE_ADAPTIVE: {
+        // TODO: adaptive sampling
+        break;
+      }
+    };
   }
 }
 
@@ -218,16 +219,15 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
 
       // TODO: make this nice
       // cast shadow rays
-      for (int softShadowRayX = 0; softShadowRayX < 8; ++softShadowRayX) {
-        for (int softShadowRayY = 0; softShadowRayY < 8; ++softShadowRayY) {
+      for (int shadowSampleX = 0; shadowSampleX < m_shadowSamples; ++shadowSampleX) {
+        for (int shadowSampleY = 0; shadowSampleY < m_shadowSamples; ++shadowSampleY) {
 
           // TODO: would a double be smarter/faster?
           // the shadow colour for this particular ray
           Colour shadowColour;
 
-          // TODO: need to add jitter
-          Vector3 lightPosition = light->getPosition() + Vector3((softShadowRayX - 4) * 20, (softShadowRayY - 4) * 20, 0);
-          lightPosition += Vector3((double)((rand() % 100)/10.0), (double)((rand() % 100)/10.0), 0.0);
+          // TODO: need to add jitter and grid shifting
+          Vector3 lightPosition = light->getPosition();
 
           // get direction from intersection to lightLocation
           Vector3 lightNormal(intersection, lightPosition);
@@ -266,7 +266,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
                 break;
             }
 
-            // we 'add' the light from the current light to the ray (if it's not in shad0w)
+            // we 'add' the light from the current light to the ray (if it's not in shadow)
             if (!inShadow) {
               // lambertian reflectance
               shadowColour += objectColour * (lightAttenuation * objectMaterial->getDiffuseIntensity() * shadowCheck);

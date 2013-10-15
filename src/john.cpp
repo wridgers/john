@@ -11,9 +11,15 @@ int main(int argc, char **argv)
   Tracer *tracer = new Tracer();
 
   // configure tracer
-  tracer->setRenderResolution(1280, 720);
-  tracer->setAntiAliasType(AA_TYPE_SUPERSAMPLE);
-  tracer->setAntiAliasQuality(AA_QUALITY_4);
+  tracer->setRenderResolution(640, 480);
+
+  // pixels
+  tracer->setPixelSampleType(SAMPLE_NONE);
+  tracer->setPixelSamples(1);
+
+  // shadows
+  tracer->setShadowSampleType(SAMPLE_NONE);
+  tracer->setShadowSamples(1);
 
   // guess number of threads to use
   unsigned threads = thread::hardware_concurrency();
