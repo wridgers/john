@@ -11,14 +11,14 @@ int main(int argc, char **argv)
   Tracer *tracer = new Tracer();
 
   // configure tracer
-  tracer->setRenderResolution(640, 480);
+  tracer->setRenderResolution(1280, 720);
 
   // pixels
-  tracer->setPixelSampleType(SAMPLE_NONE);
-  tracer->setPixelSamples(1);
+  tracer->setPixelSampleType(SAMPLE_FULL);
+  tracer->setPixelSamples(2);
 
   // shadows
-  tracer->setShadowSampleType(SAMPLE_NONE);
+  tracer->setShadowSampleType(SAMPLE_FULL);
   tracer->setShadowSamples(1);
 
   // guess number of threads to use

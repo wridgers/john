@@ -140,11 +140,11 @@ void Tracer::traceThread(int threadId)
         double step = 1.0 / m_pixelSamples;
 
         // pixel sampling
-        for (int sampleX = 0; sampleX < m_pixelSamples; ++sampleX) {
-          for (int sampleY = 0; sampleY < m_pixelSamples; ++sampleY) {
+        for (double sampleX = -0.5; sampleX <= 0.51; sampleX += step) {
+          for (double sampleY = -0.5; sampleY <= 0.51; sampleY += step) {
 
             // get our ray from the camera and trace it
-            Ray primaryRay = m_scene->getCamera(0)->getPixelRay(x + sampleX * step, y + sampleY * step);
+            Ray primaryRay = m_scene->getCamera(0)->getPixelRay(x + sampleX, y + sampleY);
             m_stats[threadId].raysCast++;
             colours.push_back(traceRay(threadId, primaryRay, m_maxRayDepth));
           }
