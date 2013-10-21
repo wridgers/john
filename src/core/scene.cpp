@@ -132,13 +132,13 @@ bool Scene::loadScene(string sceneFile)
   // a single light source
   Light *light = new Light();
   light->setPosition(Vector3(0, 299, -200));
-  light->setIntensity(40);
+  light->setIntensity(30);
   light->setColour(Colour(255, 255, 255));
   addLight(light);
 
   light = new Light();
   light->setPosition(Vector3(-100, 299, -500));
-  light->setIntensity(40);
+  light->setIntensity(30);
   light->setColour(Colour(255, 255, 255));
   addLight(light);
 

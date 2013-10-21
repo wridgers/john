@@ -140,8 +140,8 @@ void Tracer::traceThread(int threadId)
         double step = 1.0 / m_pixelSamples;
 
         // pixel sampling
-        for (double sampleX = -0.5; sampleX <= 0.51; sampleX += step) {
-          for (double sampleY = -0.5; sampleY <= 0.51; sampleY += step) {
+        for (double sampleX = -0.5; sampleX < 0.5; sampleX += step) {
+          for (double sampleY = -0.5; sampleY < 0.5; sampleY += step) {
 
             // get our ray from the camera and trace it
             Ray primaryRay = m_scene->getCamera(0)->getPixelRay(x + sampleX, y + sampleY);
@@ -217,17 +217,24 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
       // vector of shadow results
       vector<Colour> softShadow;
 
+      double lightWidth = 120;
+      double step = 1.0 / m_shadowSamples;
+
       // TODO: make this nice
       // cast shadow rays
-      for (int shadowSampleX = 0; shadowSampleX < m_shadowSamples; ++shadowSampleX) {
-        for (int shadowSampleY = 0; shadowSampleY < m_shadowSamples; ++shadowSampleY) {
+      for (double shadowSampleX = -0.5; shadowSampleX < 0.5; shadowSampleX += step) {
+        for (double shadowSampleY = -0.5; shadowSampleY < 0.5; shadowSampleY += step) {
 
           // TODO: would a double be smarter/faster?
           // the shadow colour for this particular ray
           Colour shadowColour;
 
+          double randomX = (rand() % 100 / 100.0) * step;
+          double randomY = (rand() % 100 / 100.0) * step;
+
           // TODO: need to add jitter and grid shifting
           Vector3 lightPosition = light->getPosition();
+          lightPosition += Vector3((shadowSampleX + randomX) * lightWidth, (shadowSampleY + randomY) * lightWidth, 0.0);
 
           // get direction from intersection to lightLocation
           Vector3 lightNormal(intersection, lightPosition);
@@ -245,7 +252,7 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
             m_stats[threadId].raysCast++;
 
             // distance to light
-            double distanceToLight = Vector3(intersection, light->getPosition()).magnitude();
+            double distanceToLight = Vector3(intersection, lightPosition).magnitude();
 
             // TODO: shadows need to work nicely with transparent objects…
             // update this every loop

@@ -4,15 +4,14 @@
     * command line options
     * log file
     * use library to output image
-    * use steganography techniques to store render details in image
+    * save john version and render stats embedded in image as data
     * ray tree debugging
       - ability to output entire ray tree for all pixels (warning, large file)
         and the visualise this (WebGL viewer?) to debug casting
     * tests
     * doxygen
 
-  - Core
-    * scene handler
+  - Scene
     * load scene from file
       - blender exporter
     * binary space partitioning and kd-trees
@@ -45,5 +44,4 @@
     * checkerboard patterns
     * named materials
     * preconfigured set of common materials
-
 

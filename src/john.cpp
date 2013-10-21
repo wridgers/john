@@ -15,11 +15,11 @@ int main(int argc, char **argv)
 
   // pixels
   tracer->setPixelSampleType(SAMPLE_FULL);
-  tracer->setPixelSamples(2);
+  tracer->setPixelSamples(1);
 
   // shadows
   tracer->setShadowSampleType(SAMPLE_FULL);
-  tracer->setShadowSamples(1);
+  tracer->setShadowSamples(8);
 
   // guess number of threads to use
   unsigned threads = thread::hardware_concurrency();

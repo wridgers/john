@@ -28,7 +28,7 @@ enum sampleType {
   // exact number of samples, best quality but slowest
   SAMPLE_FULL,
 
-  // change number of samples based on initial samples
+  // change number of samples based on fewer initial samples
   // faster, potentially lower quality
   SAMPLE_ADAPTIVE
 };
@@ -38,6 +38,7 @@ using namespace std;
 class Tracer
 {
 public:
+
   Tracer();
   ~Tracer();
 
@@ -93,7 +94,7 @@ private:
   Scene*              m_scene;
 
   // threading
-  int                  m_numberOfThreads;
+  int                 m_numberOfThreads;
 
   // render stats
   threadStats*        m_stats;
