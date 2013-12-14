@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 
   // pixels
   tracer->setPixelSampleType(SAMPLE_FULL);
-  tracer->setPixelSamples(1);
+  tracer->setPixelSamples(4);
 
   // shadows
   tracer->setShadowSampleType(SAMPLE_FULL);

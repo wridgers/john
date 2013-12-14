@@ -10,17 +10,20 @@
         and the visualise this (WebGL viewer?) to debug casting
     * tests
     * doxygen
+    * matrix3x3, matrix4x4, vector4, vector2
 
   - Scene
     * load scene from file
-      - blender exporter
+      - python blender exporter
+    * bounding boxes
+    * world and local coordinates
     * binary space partitioning and kd-trees
     * time factor for motion blur
 
   - Objects
     * triangles
-    * boxes
-    * cylinder
+    * finite planes
+    * rotations and transformations
 
   - Quality
     * adaptive jitter sampling
@@ -28,14 +31,16 @@
   - Lighting
     * soft shadows
     * global illumination
+    * caustics
     * spot lights
     * volume lights
-    * track energy of ray, disregard once energy drops below threshold
+    * ambient and directional lights
 
   - Camera
-    * support for different lenses
-    * aperture shape
+    * lenses
     * depth of field
+    * orthogonal
+    * environmental
 
   - Materials
     * refraction

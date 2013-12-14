@@ -14,12 +14,15 @@ public:
     Triangle();
     ~Triangle();
 
+    // set position
+    void setVerticies(Vector3 v0, Vector3 v1, Vector3 v2);
+
     // object maths
     pair<bool, double>  intersectionCheck(Ray& ray);
     Vector3             surfaceNormal(Vector3& intersection);
 
 private:
-    Vector3     v0, v1, v2;
+    Vector3     m_v0, m_v1, m_v2;
 };
 
 #endif

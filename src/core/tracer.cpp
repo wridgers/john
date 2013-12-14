@@ -217,18 +217,17 @@ Colour Tracer::traceRay(int threadId, Ray ray, int rayDepth)
       // vector of shadow results
       vector<Colour> softShadow;
 
-      double lightWidth = 120;
+      double lightWidth = 200;
       double step = 1.0 / m_shadowSamples;
 
-      // TODO: make this nice
       // cast shadow rays
       for (double shadowSampleX = -0.5; shadowSampleX < 0.5; shadowSampleX += step) {
         for (double shadowSampleY = -0.5; shadowSampleY < 0.5; shadowSampleY += step) {
 
-          // TODO: would a double be smarter/faster?
           // the shadow colour for this particular ray
           Colour shadowColour;
 
+          // TODO: faster random variables
           double randomX = (rand() % 100 / 100.0) * step;
           double randomY = (rand() % 100 / 100.0) * step;
 

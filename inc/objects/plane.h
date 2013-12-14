@@ -15,9 +15,11 @@ public:
   Plane(Vector3 position, Vector3 normal);
   ~Plane();
 
-  // we only need setters here
   void setNormal(Vector3 normal);
   void setPosition(Vector3 position);
+
+  void setWidth(double width);
+  void setLength(double length);
 
   // object maths
   pair<bool, double>  intersectionCheck(Ray& ray);
@@ -25,6 +27,8 @@ public:
 
 private:
   Vector3     m_normal, m_position;
+
+  double      m_width, m_length;
 };
 
 #endif

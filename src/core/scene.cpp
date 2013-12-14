@@ -132,13 +132,7 @@ bool Scene::loadScene(string sceneFile)
   // a single light source
   Light *light = new Light();
   light->setPosition(Vector3(0, 299, -200));
-  light->setIntensity(30);
-  light->setColour(Colour(255, 255, 255));
-  addLight(light);
-
-  light = new Light();
-  light->setPosition(Vector3(-100, 299, -500));
-  light->setIntensity(30);
+  light->setIntensity(60);
   light->setColour(Colour(255, 255, 255));
   addLight(light);
 
@@ -206,6 +200,14 @@ bool Scene::loadScene(string sceneFile)
   sphere->setRadius(70);
   sphere->setMaterial(reflection);
   addObject(sphere);
+
+  // a simple triangle
+  Triangle *triangle = new Triangle();
+  triangle->setVerticies(
+    Vector3(0, 0, -100),
+    Vector3(0, 50, -100),
+    Vector3(0, 0, -100)
+  );
 
   ////////////
   // planes //

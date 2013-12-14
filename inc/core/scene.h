@@ -11,8 +11,9 @@
 #include "materials/material.h"
 
 #include "objects/object.h"
-#include "objects/sphere.h"
 #include "objects/plane.h"
+#include "objects/sphere.h"
+#include "objects/triangle.h"
 
 using namespace std;
 
