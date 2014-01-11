@@ -1,4 +1,4 @@
-#include "maths/vector3.h"
+#include "inc/maths/vector3.h"
 
 Vector3::Vector3() :
   x(0.0), y(0.0), z(0.0)
@@ -111,10 +111,12 @@ Vector3 Vector3::operator/ (const double &rhs)
 {
   assert(rhs != 0);
 
+  double inverse = 1.0 / rhs;
+
   return Vector3(
-    x / rhs,
-    y / rhs,
-    z / rhs
+    x * inverse,
+    y * inverse,
+    z * inverse
   );
 }
 
@@ -167,9 +169,11 @@ Vector3& Vector3::operator/= (const double &rhs)
 {
   assert(rhs != 0);
 
-  x /= rhs;
-  y /= rhs;
-  z /= rhs;
+  double inverse = 1.0 / rhs;
+
+  x *= inverse;
+  y *= inverse;
+  z *= inverse;
 
   return *this;
 }
