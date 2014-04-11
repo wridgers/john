@@ -9,10 +9,9 @@
 #include <vector>
 
 #include "core/scene.h"
-
-#include "maths/vector3.h"
 #include "types/colour.h"
 #include "types/ray.h"
+#include "types/vector3.h"
 
 // thread render statistics struct
 struct threadStats

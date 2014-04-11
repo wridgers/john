@@ -1,4 +1,4 @@
-#include "inc/maths/vector3.h"
+#include "types/vector3.h"
 
 Vector3::Vector3() :
   x(0.0), y(0.0), z(0.0)

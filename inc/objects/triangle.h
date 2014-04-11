@@ -1,10 +1,9 @@
 #ifndef __TRIANGLE_H__
 #define __TRIANGLE_H__
 
-
-#include "maths/vector3.h"
-#include "objects/object.h"
+#include "core/object.h"
 #include "types/ray.h"
+#include "types/vector3.h"
 
 using namespace std;
 

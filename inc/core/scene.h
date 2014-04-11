@@ -6,11 +6,10 @@
 
 #include "types/colour.h"
 
-#include "cameras/camera.h"
-#include "lights/light.h"
-#include "materials/material.h"
-
-#include "objects/object.h"
+#include "core/camera.h"
+#include "core/light.h"
+#include "core/material.h"
+#include "core/object.h"
 #include "objects/plane.h"
 #include "objects/sphere.h"
 #include "objects/triangle.h"

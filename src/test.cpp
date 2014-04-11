@@ -1,4 +1,4 @@
-#include "test.h"
+#include "inc/test.h"
 
 bool ColourVectorTest();
 
@@ -24,10 +24,8 @@ bool ColourVectorTest() {
   return false;
 }
 
-void test(string test, bool pass) 
+void test(string test, bool pass)
 {
   cout << test << ": " << (pass ? "pass" : "fail") << endl;
-
-  if (!pass)
-    exit(1);
 }
+

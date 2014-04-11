@@ -1,4 +1,4 @@
-#include "lights/light.h"
+#include "core/light.h"
 
 Light::Light()
 {

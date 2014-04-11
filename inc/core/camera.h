@@ -1,8 +1,8 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
 
-#include "maths/vector3.h"
 #include "types/ray.h"
+#include "types/vector3.h"
 
 using namespace std;
 

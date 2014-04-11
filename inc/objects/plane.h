@@ -1,10 +1,10 @@
 #ifndef __PLANE_H__
 #define __PLANE_H__
 
-#include "materials/material.h"
-#include "maths/vector3.h"
-#include "objects/object.h"
+#include "core/material.h"
+#include "core/object.h"
 #include "types/ray.h"
+#include "types/vector3.h"
 
 using namespace std;
 

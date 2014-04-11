@@ -5,7 +5,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
   // print stuff
-  cout << "john - v0.1.1 - a Will Ridgers project\n" << endl;
+  cout << "john - v0.1.1" << endl;
 
   // load tracer
   Tracer *tracer = new Tracer();
@@ -39,8 +39,6 @@ int main(int argc, char **argv)
 
   // trace!
   tracer->trace();
-
-  // TODO: show progress
 
   // get time of stop
   chrono::high_resolution_clock::time_point traceStop = chrono::high_resolution_clock::now();

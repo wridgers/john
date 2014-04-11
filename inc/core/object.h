@@ -1,8 +1,8 @@
 #ifndef __OBJECT_H__
 #define __OBJECT_H__
 
-#include "materials/material.h"
-#include "maths/vector3.h"
+#include "core/material.h"
+#include "types/vector3.h"
 #include "types/ray.h"
 
 using namespace std;

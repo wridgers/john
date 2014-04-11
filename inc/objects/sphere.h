@@ -1,10 +1,10 @@
 #ifndef __SPHERE_H__
 #define __SPHERE_H__
 
-#include "maths/vector3.h"
-#include "materials/material.h"
-#include "objects/object.h"
+#include "core/material.h"
+#include "core/object.h"
 #include "types/ray.h"
+#include "types/vector3.h"
 
 using namespace std;
 

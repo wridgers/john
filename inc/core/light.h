@@ -1,8 +1,8 @@
 #ifndef __LIGHT_H__
 #define __LIGHT_H__
 
-#include "maths/vector3.h"
 #include "types/colour.h"
+#include "types/vector3.h"
 
 using namespace std;
 
