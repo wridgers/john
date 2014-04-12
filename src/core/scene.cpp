@@ -13,20 +13,24 @@ Scene::Scene(string sceneFile)
 Scene::~Scene()
 {
   // delete the cameras
-  for (auto camera : m_cameras)
+  for (auto camera : m_cameras) {
     delete camera;
+  }
 
   // delete the lights
-  for (auto light : m_lights)
+  for (auto light : m_lights) {
     delete light;
+  }
 
   // delete materials
-  for (auto material : m_materials)
+  for (auto material : m_materials) {
     delete material;
+  }
 
   // delete objects
-  for (auto object : m_objects)
+  for (auto object : m_objects) {
     delete object;
+  }
 }
 
 void Scene::setEnvironmentColour(Colour colour)

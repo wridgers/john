@@ -14,8 +14,9 @@ Tracer::Tracer()
 Tracer::~Tracer()
 {
   // delete the frame buffer
-  if (m_frameBuffer)
+  if (m_frameBuffer) {
     delete [] m_frameBuffer;
+  }
 
   // delete the stats
   delete [] m_stats;
@@ -33,40 +34,44 @@ void Tracer::setMaxRayDepth(int depth)
 
 void Tracer::setRenderResolution(int width, int height)
 {
-  m_renderWidth   = width;
-  m_renderHeight  = height;
+  m_renderWidth  = width;
+  m_renderHeight = height;
 }
 
 void Tracer::setPixelSampleType(sampleType type)
 {
   m_pixelSampleType = type;
 
-  if (type == SAMPLE_NONE)
+  if (type == SAMPLE_NONE) {
     m_pixelSamples = 1;
+  }
 }
 
 void Tracer::setPixelSamples(unsigned short samples)
 {
   m_pixelSamples = samples;
 
-  if (samples == 1)
+  if (samples == 1) {
     m_pixelSampleType = SAMPLE_NONE;
+  }
 }
 
 void Tracer::setShadowSampleType(sampleType type)
 {
   m_shadowSampleType = type;
 
-  if (type == SAMPLE_NONE)
+  if (type == SAMPLE_NONE) {
     m_shadowSamples = 1;
+  }
 }
 
 void Tracer::setShadowSamples(unsigned short samples)
 {
   m_shadowSamples = samples;
 
-  if (samples == 1)
+  if (samples == 1) {
     m_shadowSampleType = SAMPLE_NONE;
+  }
 }
 
 void Tracer::setScene(Scene* scene)
@@ -80,15 +85,17 @@ bool Tracer::prepare()
   m_frameBufferSize = m_renderWidth * m_renderHeight;
   m_frameBuffer = new Colour[m_frameBufferSize];
 
-  for (int i = 0; i < m_frameBufferSize; ++i)
+  for (int i = 0; i < m_frameBufferSize; ++i) {
     m_frameBuffer[i] = Colour();
+  }
 
   // initialise statistics struct
   m_stats = new threadStats[m_numberOfThreads];
 
   // stats are fun!
-  for (int i = 0; i < m_numberOfThreads; ++i)
+  for (int i = 0; i < m_numberOfThreads; ++i) {
     m_stats[i].raysCast = 0;
+  }
 
   // for now we need to we some camera stuff
   m_scene->getCamera(0)->setRenderDimensions(m_renderWidth, m_renderHeight);
@@ -102,12 +109,14 @@ void Tracer::trace()
   thread *traceThreads = new thread[m_numberOfThreads];
 
   // spawn threads
-  for (int threadId = 0; threadId < m_numberOfThreads; ++threadId)
+  for (int threadId = 0; threadId < m_numberOfThreads; ++threadId) {
     traceThreads[threadId] = thread(&Tracer::traceThread, this, threadId);
+  }
 
   // join threads
-  for (int threadId = 0; threadId < m_numberOfThreads; ++threadId)
+  for (int threadId = 0; threadId < m_numberOfThreads; ++threadId) {
     traceThreads[threadId].join();
+  }
 
   // done! clean up
   delete [] traceThreads;
@@ -468,8 +477,9 @@ long Tracer::getRaycount()
   long output = 0;
 
   // add all the raysCast values together
-  for (int i = 0; i < m_numberOfThreads; ++i)
+  for (int i = 0; i < m_numberOfThreads; ++i) {
     output += m_stats[i].raysCast;
+  }
 
   return output;
 }
